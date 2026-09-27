@@ -10,11 +10,19 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 ROOT_DIR = BASE_DIR.parent
 
-SECRET_KEY = 'django-insecure-gscms-workshop-elite-master-key-2026'
+IS_VERCEL = 'VERCEL' in os.environ or os.environ.get('VERCEL') == '1'
+
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-gscms-workshop-elite-master-key-2026')
 
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.vercel.app',
+    'https://*.now.sh',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -30,6 +38,15 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+]
+
+try:
+    import whitenoise
+    MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
+except ImportError:
+    pass
+
+MIDDLEWARE.extend([
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -37,7 +54,7 @@ MIDDLEWARE = [
     'workshop.middleware.AutoLoginMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
+])
 
 ROOT_URLCONF = 'gscms.urls'
 
@@ -63,13 +80,21 @@ TEMPLATES = [
 WSGI_APPLICATION = 'gscms.wsgi.application'
 
 # Database
-# Production-ready SQLite by default for zero-friction setup, easily swappable with PostgreSQL
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Production-ready SQLite by default; on Vercel runs against /tmp/db.sqlite3
+if IS_VERCEL:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': Path('/tmp/db.sqlite3'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -91,16 +116,25 @@ STATICFILES_DIRS = [
     ROOT_DIR / 'frontend' / 'static',
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT.mkdir(parents=True, exist_ok=True)
+WHITENOISE_USE_FINDERS = True
 
 # Media storage
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+if IS_VERCEL:
+    MEDIA_ROOT = Path('/tmp/media')
+else:
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 # Backups folder
-BACKUPS_DIR = ROOT_DIR / 'backups'
+if IS_VERCEL:
+    BACKUPS_DIR = Path('/tmp/backups')
+else:
+    BACKUPS_DIR = ROOT_DIR / 'backups'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
+

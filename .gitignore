@@ -50,6 +50,8 @@ venv.bak/
 # Django stuff:
 *.log
 local_settings.py
+staticfiles/
+backend/staticfiles/
 
 # Backups (runtime backup archives)
 backups/*.zip
