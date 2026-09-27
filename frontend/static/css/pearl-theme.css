@@ -2226,20 +2226,25 @@ button:focus-visible, a:focus-visible {
   .app-main .dashboard-kpi-grid > div:nth-child(3) { grid-column: 1 / -1; }
 }
 
-/* Project-wide macOS-inspired white pointers with a crisp dark outline. */
+/* Custom cursor design matching user specifications */
 :root {
-  --cursor-macos-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='30' viewBox='0 0 24 30'%3E%3Cpath d='M3 2.5v21l5.8-5.5 4.1 9 4.1-1.9-4.2-8.8 8 .1z' fill='%23fff' stroke='%230b0b0c' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, auto;
-  --cursor-macos-hand: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='30' viewBox='0 0 26 30'%3E%3Cpath d='M9 14V5.5a2.3 2.3 0 0 1 4.6 0v7.2-3a2.1 2.1 0 0 1 4.2 0v3-1.2a2 2 0 0 1 4 0v2.3-.4a2 2 0 0 1 4 0v6.4c0 5.5-3.7 9-8.8 9h-3.4c-2.5 0-4.2-1.1-5.8-3l-4.1-5a2.1 2.1 0 0 1 3.1-2.8z' transform='translate(-1 -1)' fill='%23fff' stroke='%230b0b0c' stroke-width='2.1' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") 10 5, pointer;
+  --cursor-custom-arrow: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADS0lEQVR4nO2XP08UQRTA3+zO/oUd7rxrtDIWJhTUJobCQgN0FwIXCREiMTEGDV+ChkIqYkP8AFLQERKKS4yNV2GIBSQaE0KhoSB7B7fL7c6MeeuObk4gHnechb7k7czOzO77zXtvZnYBAMCyrGuUUoJ1QpKiZ6LhRdf1GcdxXjuOo0kpoedimmYZANDyluu6Ts8BNE2bHh4ejiYnJxHikDF2o9cMU6VSSYZh6M/PzyOEZIzd7SXAw5GRERlFUSCE4MvLy5Gu67Kvr++JYRi9ARgbG0sAwjCUKBsbG0GhUJCU0hXHcfR03JUtkSkFEMcxlgnE7u5uMDg4iCF5xxhjGYiug0xnAVAUxNHRUYB9APDV87xbVwXxqBUARdWbzWa0sLCQJKfneffTvOgqxMxZAChCCKV8ZWXllFIqLct6bpqm1hUITUs2w8fnASgI1b65uRkUi0VJCFm1bVstkctD6HqS4HOjo6NnAnDOf6paITs7Oyo539u2nU3O9h0ALQ9nDyMhROIhpZZlJe1DQ0P29vZ2c3x8/A7n/LPrujfTrbxtoalxtc5/M763tycajYaGdYTDEvsMwzAXFxdj3/eLlUrlC2PsXq1We9s2ga7rCPBUhQBdrZbg2toaNwxD4q5ICOGapiV1VKxjQuZyOYljbNvG+gt1rLfjgUTwGCaEaHEc4+kI1Wo1np2dpZ7nbQVB8CqKohMp5TEAoJ6iCiEi3/djXdd5FEVcCGEKIUg74aCtsUfj+/v78cTEBDUM40Oj0XgZhmENAGqp8UYK0AQAjtHCxEWjnOPt5ZIQ1MPHx8dxuVymBwcHHznnz8IwPCKEiMx4vUU72g+oso8eEEKg2+1qtfptYGBgzvf9Q0KIi5uicjsARGrmqXb0CaVhsuELPc+DpaUlWF9fh1wuV/J9/xPOXEpZB4ATAAhT43EKIFv08uI4zgxjLHIcR/b39z8ghNgAUEi1mJZ5APAAwAUA7DdaQnA5D8CPBAzr9TolhEwFQVCRUmrpjJXbVdKp2asQdDx7mlwovc4YW63X62+EEDQ11JpYWXe3Gu8sBPl8/raJ6+/XrkhTNTJKu5X5WSHn3F/04uxsO/6JIH/YdhFE1wHO6/sLv0z/5V+Q76V3E4ojmAtFAAAAAElFTkSuQmCC') 1 1, url('/static/img/cursors/cursor-default.png') 1 1, auto;
+  --cursor-custom-pointer: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADbElEQVR4nO1WPUgcQRR+M7N3t3hyaxPNKYqYLPgHEYLYpbiIhYWNhalTBDuxMVhbWdgZckECgp1dkBSCVhIIHBiJeJichSQQNPE8OM3t3u3OvPDWVS7hVHDPwyIfPGZ3dnbeN2/eH8BdhBCChscA8EQIwWtOIBKJvJiamsK5uTmMRqPznNeYg2EYaycnJ5bjOFZ3d3cWAG6NAa80yRgr5PN5nTGmc84tf652BACAkx+QMMY4YwwRsaYELoCILiJGiQjcAvhVH5VSrm3bTV1dXYemae4KIRoBIFwTAsy/81gsFt7Y2KhLJpMmIn4fGhqyGhoa3jLGKFYDOwa/bkFdXR3U19eTNVQikQivrq7ykZGR56FQ6LNpmpvhcPjRrRJQSnniui6PxWIKEZWU0p2ZmelOpVJ9hmG8YwFChJe/VNqHkhDNkxAJckbOudbZ2ekSoUgkUkLEQAQeAsAwAEQrhVqhULggp2ma90zrLMuifzki0njjGOVjY2OZxcXF96Zp/gSAJl/Bhaf39vZ6+cC2bcjn82c/cX5hmcDY39+3LMvK7e3tYXt7+28AuN/Y2Lh0cHCAUkpHSklJCLe3tzGZTHrPo6OjuLS05H1oaWnZCxQNk5OTSDlfKSUzmQy2trZS6v1xeHjoKVOK/O5vrKysECHpOA6t/xo0HF8tLy+j67pF2nx3dxcHBwcxm83+RYDGc2v477JQKGBHR8d2IAJCCGEYxpednR1JJqeNSfAK0MlpLZFsa2v7UA1fuNfX14enp6dWqVQiIlfp9yxBFkun06jr+usgirk//tra2no6MTFBJbhEiecq0He6hXQ6rWzb/ghVxOzCwoJ3OjLzZXBd11szPj6Ofh4JDnaWaEQ0Gv20ubnp+UMlEr75ZS6Xk/F4/BtjLFS1ZoWfJZd4T08PHh8fUw5w6LREpFyKxeLJ9PQ0nf6Z38BWrV1itKGmaYn+/n5MpVJeuJG5z4VIzc/PoxBiVdO0sO9HNybAKrx77ZiUskvX9dlEIjE8MDAAzc3NcHR0BOvr67C2tvZGCPFSSnnq14FzqQoBRunBb8V1pdQDAOgBgDhFCwBsaZqWcV3X8ZXKIMWIXTJH2qn0Uemlcu+xoeaUGhPKir7ic+VVJ0Dwyi1Zo+yelS/SHwMpJ7Br5tk/Un7fgZX/x53AHxE9eUHfo8BkAAAAAElFTkSuQmCC') 7 1, url('/static/img/cursors/cursor-pointer.png') 7 1, pointer;
+  --cursor-macos-arrow: var(--cursor-custom-arrow);
+  --cursor-macos-hand: var(--cursor-custom-pointer);
 }
-html, body, body * { cursor: var(--cursor-macos-arrow) !important; }
+
+html, body, body * { cursor: var(--cursor-custom-arrow) !important; }
 a[href], area[href], button, summary, label[for], select,
 input[type="button"], input[type="submit"], input[type="reset"],
-[role="button"], [role="link"], [data-clickable="true"] {
-  cursor: var(--cursor-macos-hand) !important;
+[role="button"], [role="link"], [data-clickable="true"],
+.btn-primary, .btn-secondary, .btn-ghost, .btn-ash, .btn-delete,
+.sidebar-link, .del-trigger, .del-circle-btn, [onclick], [tabindex="0"] {
+  cursor: var(--cursor-custom-pointer) !important;
 }
 input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
 textarea, [contenteditable="true"], [role="textbox"] { cursor: text !important; }
-input[type="checkbox"], input[type="radio"] { cursor: var(--cursor-macos-hand) !important; }
+input[type="checkbox"], input[type="radio"] { cursor: var(--cursor-custom-pointer) !important; }
 [draggable="true"] { cursor: grab !important; }
 [draggable="true"]:active { cursor: grabbing !important; }
 [style*="cursor: zoom-in"], .comparison-img-wrapper { cursor: zoom-in !important; }
