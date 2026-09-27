@@ -7,11 +7,14 @@ from the repository root directory as well as from the backend directory.
 import os
 import sys
 
-if __name__ == '__main__':
-    backend_dir = os.path.join(os.path.dirname(__file__), 'backend')
+backend_dir = os.path.join(os.path.dirname(__file__), 'backend')
+if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'gscms.settings')
+
+if __name__ == '__main__':
     os.chdir(backend_dir)
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'gscms.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

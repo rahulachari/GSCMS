@@ -9,11 +9,14 @@ class AutoLoginMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if not request.user.is_authenticated:
-            owner = User.objects.filter(username='owner').first()
-            if not owner:
-                owner = User.objects.filter(is_superuser=True).first()
-            if not owner:
-                owner = User.objects.create_superuser('owner', 'owner@swarna.com', 'admin123')
-            request.user = owner
+        try:
+            if not request.user.is_authenticated:
+                owner = User.objects.filter(username='owner').first()
+                if not owner:
+                    owner = User.objects.filter(is_superuser=True).first()
+                if not owner:
+                    owner = User.objects.create_superuser('owner', 'owner@swarna.com', 'admin123')
+                request.user = owner
+        except Exception:
+            pass
         return self.get_response(request)
