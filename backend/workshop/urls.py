@@ -8,6 +8,7 @@ urlpatterns = [
 
     # Dashboard
     path('', views.dashboard_view, name='dashboard'),
+    path('api/index.py', views.dashboard_view),
 
     # Customers & Client Documents
     path('customers/', views.customer_list, name='customer_list'),
