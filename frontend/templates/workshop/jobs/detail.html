@@ -1,35 +1,49 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ job.job_id }} — {{ job.title }} | {{ workshop_settings.name }}{% endblock %}
+{% block title %}{{ job.job_id }} &mdash; {{ job.title }} | {{ workshop_settings.name }}{% endblock %}
 
 {% block content %}
-<div style="margin-bottom:var(--spacing-28);">
-    <a href="{% url 'job_list' %}" style="font-size:14px; color:var(--color-link-blue);">&larr; Back to Jobs Floor</a>
-    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:8px; flex-wrap:wrap; gap:16px;">
+<!-- Top Navigation & Header -->
+<div style="margin-bottom:24px;">
+    <a href="{% url 'job_list' %}" style="font-size:13.5px; color:#888888; text-decoration:none; font-weight:500; display:inline-flex; align-items:center; gap:6px; margin-bottom:12px;">
+        &larr; Back to Jobs Floor
+    </a>
+
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
         <div>
-            <div style="display:flex; align-items:center; gap:10px;">
-                <span class="badge-chip badge-ash" style="font-size:13px;">{{ job.get_jewellery_type_display }}</span>
-                <span class="badge-chip badge-blue">{{ job.get_current_stage_display }}</span>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                <span class="badge-chip badge-ash" style="font-size:12px;">{{ job.get_jewellery_type_display }}</span>
+                <span class="badge-chip badge-blue" style="font-size:12px;">{{ job.get_current_stage_display }}</span>
                 {% if job.is_delayed %}
-                    <span class="badge-chip badge-red">DELAYED BY {{ job.delay_duration }}</span>
+                    <span class="badge-chip badge-red" style="font-size:12px;">DELAYED BY {{ job.delay_duration }}</span>
                 {% endif %}
             </div>
-            <h1 style="font-size:36px; margin-top:6px;">{{ job.job_id }} &bull; {{ job.title }}</h1>
-            <p style="font-size:15px; color:var(--color-graphite); margin-top:2px;">
-                Customer: <strong><a href="{% url 'customer_detail' job.order.customer.pk %}">{{ job.order.customer.name }}</a></strong> ({{ job.order.customer.mobile }}) &bull; Order: <a href="{% url 'order_detail' job.order.pk %}">{{ job.order.order_number }}</a>
+            <h1 style="font-size:30px; font-weight:700; color:#ffffff; margin:0; letter-spacing:-0.02em;">
+                {{ job.job_id }} &bull; {{ job.title }}
+            </h1>
+            <p style="font-size:13.5px; color:#888888; margin-top:6px;">
+                Customer: <strong><a href="{% url 'customer_detail' job.order.customer.pk %}" style="color:#ededed;">{{ job.order.customer.name }}</a></strong> ({{ job.order.customer.mobile }}) &bull; Order: <a href="{% url 'order_detail' job.order.pk %}" style="color:#ededed;">{{ job.order.order_number }}</a>
             </p>
         </div>
 
+        <!-- Clean Unified Action Toolbar (Exact 36px Height on All Items) -->
         <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-            <a href="{% url 'job_dossier' job.job_id %}" class="btn-ghost" style="color:var(--accent-blue) !important; font-weight:700;" title="View Public Item Dossier & QR Card">
+            {% if job.overall_status == 'READY' %}
+                <a href="{% url 'delivery_record' job.job_id %}" class="btn-primary" style="height:36px; padding:0 16px; font-weight:600; text-decoration:none;">
+                    Record Delivery &rarr;
+                </a>
+            {% endif %}
+
+            <a href="{% url 'job_dossier' job.job_id %}" class="btn-secondary" style="height:36px; padding:0 14px; text-decoration:none;" title="View Public Item Dossier &amp; QR Card">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect>
                     <rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
                 </svg>
-                Item QR Dossier
+                QR Dossier
             </a>
-            <a href="{% url 'job_card_print' job.job_id %}" target="_blank" class="btn-ghost" title="Printable Card with Scannable QR">
+
+            <a href="{% url 'job_card_print' job.job_id %}" target="_blank" class="btn-secondary" style="height:36px; padding:0 14px; text-decoration:none;" title="Printable Card with Scannable QR">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="6 9 6 2 18 2 18 9"></polyline>
                     <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
@@ -37,168 +51,199 @@
                 </svg>
                 Print Card
             </a>
-            <button type="button" onclick="triggerSoftDelete('job', {{ job.pk }}, '{% url 'job_list' %}')" class="btn-delete" style="padding:8px 14px; font-size:13px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;">
+
+            <button type="button" onclick="triggerSoftDelete('job', {{ job.pk }}, '{% url 'job_list' %}')" class="btn-delete" style="height:36px; width:36px; min-width:36px; padding:0; display:inline-flex; align-items:center; justify-content:center;" title="Move to Recycle Bin">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                     <polyline points="3 6 5 6 21 6"></polyline>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                 </svg>
-                Move to Recycle Bin
             </button>
-            {% if job.overall_status == 'READY' %}
-                <a href="{% url 'delivery_record' job.job_id %}" class="flow-button" style="text-decoration:none;">
-                    <!-- Left arrow — slides in from left on hover -->
-                    <svg class="flow-btn-arr flow-btn-arr--left" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                    <span class="flow-btn-text">Record Customer Delivery</span>
-                    <span class="flow-btn-circle"></span>
-                    <!-- Right arrow — slides out to right on hover -->
-                    <svg class="flow-btn-arr flow-btn-arr--right" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                </a>
-            {% endif %}
         </div>
     </div>
 </div>
 
-<!-- ================= 1. REFERENCE VS FINAL COMPARISON VITRINE ================= -->
-<div class="comparison-container">
-    <!-- Left: Reference Design -->
-    <div class="comparison-box">
-        <div class="comparison-label">Reference Design (Customer Blueprint)</div>
-        <div class="comparison-img-wrapper">
-            {% if job.reference_photo %}
-                <img src="{{ job.reference_photo }}" alt="Reference Design for {{ job.job_id }}">
-            {% else %}
-                <div style="text-align:center; padding:20px; color:var(--color-slate);">
-                    No reference design uploaded.
-                </div>
-            {% endif %}
-        </div>
-        <div style="margin-top:12px; font-size:13px; color:var(--color-graphite); text-align:center;">
-            Design Version: <strong>V{{ job.design_version }}</strong> &bull;
-            {% if job.customer_approved %}
-                <span style="color:var(--status-green); font-weight:600;">Approved by {{ job.approved_by|default:"Client" }}</span>
-            {% else %}
-                <span style="color:var(--status-yellow); font-weight:600;">Pending Approval</span>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Right: Final Output -->
-    <div class="comparison-box">
-        <div class="comparison-label">Final Crafted Output (Atelier Finish)</div>
-        <div class="comparison-img-wrapper">
-            {% if job.final_photo %}
-                <img src="{{ job.final_photo }}" alt="Final Output for {{ job.job_id }}">
-            {% else %}
-                <div style="text-align:center; padding:20px; color:var(--color-slate);">
-                    In Production &mdash; Final photograph will appear upon polishing/QC completion.
-                </div>
-            {% endif %}
-        </div>
-        <div style="margin-top:12px; font-size:13px; color:var(--color-graphite); text-align:center;">
-            Physical Location: <strong>{{ job.get_current_location_display }}</strong> &bull; 
-            QC: <strong>{% if job.quality_check %}{{ job.quality_check.get_result_display }}{% else %}Pending{% endif %}</strong>
-        </div>
-    </div>
-</div>
-
-<!-- Quick Photo Upload Modal Trigger -->
-<div style="display:flex; justify-content:flex-end; margin-bottom:var(--spacing-28);">
-    <button type="button" class="btn-ash" onclick="document.getElementById('photoUploadCard').scrollIntoView({behavior:'smooth'})" style="font-size:13px;">
-        + Upload Progress / Final Photograph
-    </button>
-</div>
-
-<!-- ================= 2. WORKSHOP STAGE ACTION STATION ================= -->
-<div class="vitrine-card" style="margin-bottom:var(--spacing-28); background:#fafafc;">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+<!-- ================= 1. WORKSHOP STAGE PIPELINE CONTROLLER ================= -->
+<div style="background:#0a0a0a; border:1px solid #1e1e1e; border-radius:16px; padding:20px 24px; margin-bottom:24px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:18px;">
         <div>
-            <h3 style="font-size:19px;">Karigar Bench Controller</h3>
-            <p style="font-size:13px; color:var(--color-graphite);">
-                Current Stage: <strong style="color:var(--color-electric-blue);">{{ job.get_current_stage_display }}</strong> &bull; 
-                Assigned Artisan: <strong>{{ job.current_worker.name|default:"Unassigned" }}</strong>
-            </p>
+            <div style="font-size:11px; font-weight:700; color:#888888; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">
+                WORKSHOP PIPELINE CONTROLLER
+            </div>
+            <div style="font-size:14px; color:#cccccc;">
+                Current Stage: <strong style="color:#ffffff;">{{ job.get_current_stage_display }}</strong> &bull;
+                Assigned Artisan: <strong style="color:#ffffff;">{{ job.current_worker.name|default:"Unassigned" }}</strong>
+            </div>
         </div>
 
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button type="button" class="btn-ghost" data-stage-action="start" data-job-id="{{ job.job_id }}">
-                ▶ Start Work
-            </button>
-            <button type="button" class="btn-ghost" data-stage-action="pause" data-job-id="{{ job.job_id }}">
-                ⏸ Pause
-            </button>
-            <button type="button" class="btn-ghost" data-stage-action="resume" data-job-id="{{ job.job_id }}">
-                ⏯ Resume
-            </button>
-            <button type="button" class="btn-primary" data-stage-action="complete" data-job-id="{{ job.job_id }}" data-confirm="Advance this jewellery job to next stage?">
-                ✓ Complete &amp; Move to Next Stage
-            </button>
+        <div>
+            {% if job.overall_status == 'READY' %}
+                <a href="{% url 'delivery_record' job.job_id %}" class="btn-primary" style="height:36px; padding:0 18px; font-weight:600; text-decoration:none;">
+                    Record Customer Delivery &rarr;
+                </a>
+            {% elif job.current_stage == 'DELIVERED' or job.overall_status == 'DELIVERED' %}
+                <span class="badge-chip badge-green" style="font-size:13px; padding:6px 14px; font-weight:600;">
+                    ✓ Piece Delivered to Customer
+                </span>
+            {% else %}
+                <button type="button" class="btn-primary" data-stage-action="complete" data-job-id="{{ job.job_id }}" data-confirm="Advance this jewellery job to next stage?" style="height:36px; padding:0 18px; font-weight:600;">
+                    Advance to Next Stage &rarr;
+                </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Clean Horizontal Stage Progress Tracker -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:8px; padding-top:12px; border-top:1px solid #181818;">
+        {% with curr=job.current_stage %}
+        <div style="display:flex; flex-direction:column; gap:4px;">
+            <div style="height:4px; border-radius:2px; background:{% if curr == 'ORDER_RECEIVED' %}#ffffff{% elif curr != '' %}#22c55e{% else %}#1f1f1f{% endif %};"></div>
+            <span style="font-size:11.5px; font-weight:600; color:{% if curr == 'ORDER_RECEIVED' %}#ffffff{% else %}#888888{% endif %};">1. Intake</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+            <div style="height:4px; border-radius:2px; background:{% if curr == 'GOLD_ISSUED' %}#ffffff{% elif curr in 'MAKING,STONE_SETTING,POLISHING,QUALITY_CHECK,READY,DELIVERED' %}#22c55e{% else %}#1f1f1f{% endif %};"></div>
+            <span style="font-size:11.5px; font-weight:600; color:{% if curr == 'GOLD_ISSUED' %}#ffffff{% else %}#888888{% endif %};">2. Gold Issued</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+            <div style="height:4px; border-radius:2px; background:{% if curr == 'MAKING' %}#ffffff{% elif curr in 'STONE_SETTING,POLISHING,QUALITY_CHECK,READY,DELIVERED' %}#22c55e{% else %}#1f1f1f{% endif %};"></div>
+            <span style="font-size:11.5px; font-weight:600; color:{% if curr == 'MAKING' %}#ffffff{% else %}#888888{% endif %};">3. Making</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+            <div style="height:4px; border-radius:2px; background:{% if curr == 'STONE_SETTING' %}#ffffff{% elif curr in 'POLISHING,QUALITY_CHECK,READY,DELIVERED' %}#22c55e{% else %}#1f1f1f{% endif %};"></div>
+            <span style="font-size:11.5px; font-weight:600; color:{% if curr == 'STONE_SETTING' %}#ffffff{% else %}#888888{% endif %};">4. Stone Setting</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+            <div style="height:4px; border-radius:2px; background:{% if curr == 'POLISHING' %}#ffffff{% elif curr in 'QUALITY_CHECK,READY,DELIVERED' %}#22c55e{% else %}#1f1f1f{% endif %};"></div>
+            <span style="font-size:11.5px; font-weight:600; color:{% if curr == 'POLISHING' %}#ffffff{% else %}#888888{% endif %};">5. Polishing</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+            <div style="height:4px; border-radius:2px; background:{% if curr == 'QUALITY_CHECK' %}#ffffff{% elif curr in 'READY,DELIVERED' %}#22c55e{% else %}#1f1f1f{% endif %};"></div>
+            <span style="font-size:11.5px; font-weight:600; color:{% if curr == 'QUALITY_CHECK' %}#ffffff{% else %}#888888{% endif %};">6. Quality Check</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+            <div style="height:4px; border-radius:2px; background:{% if curr == 'READY' or curr == 'DELIVERED' %}#22c55e{% else %}#1f1f1f{% endif %};"></div>
+            <span style="font-size:11.5px; font-weight:600; color:{% if curr == 'READY' or curr == 'DELIVERED' %}#22c55e{% else %}#888888{% endif %};">7. Ready / Delivered</span>
+        </div>
+        {% endwith %}
+    </div>
+</div>
+
+<!-- ================= 2. VISUAL VITRINE: BLUEPRINT VS FINISHED PIECE ================= -->
+<div style="background:#0a0a0a; border:1px solid #1e1e1e; border-radius:16px; padding:20px 24px; margin-bottom:24px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+        <div>
+            <h3 style="font-size:16px; font-weight:600; color:#ffffff; margin:0;">Visual Vitrine</h3>
+            <p style="font-size:12.5px; color:#888888; margin-top:2px;">Customer reference blueprint compared with finished atelier output</p>
+        </div>
+        <button type="button" class="btn-secondary" onclick="togglePhotoUploadCard()" style="font-size:12.5px; height:32px; padding:0 12px;">
+            + Upload Photo
+        </button>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <!-- Left: Reference Design -->
+        <div style="background:#0e0e0e; border:1px solid #1e1e1e; border-radius:12px; padding:14px; display:flex; flex-direction:column;">
+            <div style="font-size:11px; font-weight:700; color:#888888; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">
+                Reference Design (Client Blueprint)
+            </div>
+            <div style="height:220px; background:#000000; border:1px solid #1e1e1e; border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+                {% if job.reference_photo %}
+                    <img src="{{ job.reference_photo }}" alt="Reference Blueprint" style="max-height:100%; max-width:100%; object-fit:contain;">
+                {% else %}
+                    <span style="font-size:13px; color:#666666;">No reference photo uploaded</span>
+                {% endif %}
+            </div>
+            <div style="margin-top:10px; font-size:12px; color:#888888; display:flex; justify-content:space-between; align-items:center;">
+                <span>Design Version: <strong>V{{ job.design_version }}</strong></span>
+                {% if job.customer_approved %}
+                    <span style="color:#22c55e; font-weight:600;">✓ Approved by {{ job.approved_by|default:"Client" }}</span>
+                {% else %}
+                    <span style="color:#eab308; font-weight:600;">Pending Approval</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right: Final Crafted Output -->
+        <div style="background:#0e0e0e; border:1px solid #1e1e1e; border-radius:12px; padding:14px; display:flex; flex-direction:column;">
+            <div style="font-size:11px; font-weight:700; color:#888888; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">
+                Final Crafted Output (Atelier Finish)
+            </div>
+            <div style="height:220px; background:#000000; border:1px solid #1e1e1e; border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+                {% if job.final_photo %}
+                    <img src="{{ job.final_photo }}" alt="Final Crafted Output" style="max-height:100%; max-width:100%; object-fit:contain;">
+                {% else %}
+                    <div style="text-align:center; padding:16px; color:#666666; font-size:13px;">
+                        In Production<br><span style="font-size:11.5px; color:#555555;">Final photograph will appear upon polishing/QC</span>
+                    </div>
+                {% endif %}
+            </div>
+            <div style="margin-top:10px; font-size:12px; color:#888888; display:flex; justify-content:space-between; align-items:center;">
+                <span>Location: <strong style="color:#ffffff;">{{ job.get_current_location_display }}</strong></span>
+                <span>QC: <strong style="color:#ffffff;">{% if job.quality_check %}{{ job.quality_check.get_result_display }}{% else %}Pending{% endif %}</strong></span>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Two-Column Information Architecture -->
-<div style="display:grid; grid-template-columns: 1.5fr 1fr; gap:var(--spacing-24);">
+<!-- ================= 3. TWO-COLUMN ARCHITECTURE ================= -->
+<div style="display:grid; grid-template-columns:1.5fr 1fr; gap:24px;">
 
-    <!-- Left Column: Gold & Stone Accountability, Stage History -->
+    <!-- LEFT COLUMN: Gold Accountability, Stone Tracking, Timeline -->
     <div>
         <!-- Gold Accountability Module -->
-        <div class="vitrine-card" style="margin-bottom:var(--spacing-24);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div style="background:#0a0a0a; border:1px solid #1e1e1e; border-radius:16px; padding:20px 24px; margin-bottom:24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
                 <div>
-                    <h3 style="font-size:19px;">Gold Accountability Ledger</h3>
-                    <p style="font-size:13px; color:var(--color-graphite);">Immutable precious metal track for this piece</p>
+                    <h3 style="font-size:16px; font-weight:600; color:#ffffff; margin:0;">Gold Accountability Ledger</h3>
+                    <p style="font-size:12.5px; color:#888888; margin-top:2px;">Immutable precious metal track for this piece</p>
                 </div>
-                <a href="{% url 'gold_ledger' %}" class="btn-ash" style="font-size:12px;">+ Issue / Return Gold</a>
+                <a href="{% url 'gold_ledger' %}" class="btn-secondary" style="font-size:12.5px; height:32px; padding:0 12px; text-decoration:none;">
+                    + Issue / Return Gold
+                </a>
             </div>
 
-            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; margin-bottom:16px; background:#fafafc; padding:14px; border-radius:16px;">
-                <div>
-                    <div style="font-size:12px; color:var(--color-slate);">Total Gold Issued</div>
-                    <strong style="font-size:17px; color:var(--color-apple-ink);">{{ job.gold_issued_total }}g</strong>
+            <!-- 3 Clean Dark KPI Metrics -->
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px;">
+                <div style="background:#0e0e0e; border:1px solid #1e1e1e; border-radius:12px; padding:12px 14px;">
+                    <div style="font-size:11.5px; color:#888888;">Total Gold Issued</div>
+                    <strong style="font-size:17px; color:#ffffff; display:block; margin-top:4px;">{{ job.gold_issued_total }}g</strong>
                 </div>
-                <div>
-                    <div style="font-size:12px; color:var(--color-slate);">Finished &amp; Scrap Returned</div>
-                    <strong style="font-size:17px; color:var(--status-green);">{{ job.gold_returned_total }}g</strong>
+                <div style="background:#0e0e0e; border:1px solid #1e1e1e; border-radius:12px; padding:12px 14px;">
+                    <div style="font-size:11.5px; color:#888888;">Finished &amp; Scrap Returned</div>
+                    <strong style="font-size:17px; color:#22c55e; display:block; margin-top:4px;">{{ job.gold_returned_total }}g</strong>
                 </div>
-                <div>
-                    <div style="font-size:12px; color:var(--color-slate);">Balance Difference</div>
-                    <strong style="font-size:17px; color:{% if job.gold_balance_difference != 0 %}var(--status-yellow){% else %}var(--status-green){% endif %};">
+                <div style="background:#0e0e0e; border:1px solid #1e1e1e; border-radius:12px; padding:12px 14px;">
+                    <div style="font-size:11.5px; color:#888888;">Balance Difference</div>
+                    <strong style="font-size:17px; color:{% if job.gold_balance_difference != 0 %}#eab308{% else %}#22c55e{% endif %}; display:block; margin-top:4px;">
                         {{ job.gold_balance_difference }}g
                     </strong>
                 </div>
             </div>
 
             <!-- Transactions for this piece -->
-            <table class="vitrine-table" style="font-size:13px;">
+            <table class="vitrine-table" style="font-size:13px; width:100%;">
                 <thead>
                     <tr>
-                        <th>Txn ID</th>
-                        <th>Type</th>
-                        <th>Purity</th>
-                        <th>Weight</th>
-                        <th>Karigar</th>
-                        <th>Date</th>
+                        <th style="padding:8px 10px;">Txn ID</th>
+                        <th style="padding:8px 10px;">Type</th>
+                        <th style="padding:8px 10px;">Purity</th>
+                        <th style="padding:8px 10px;">Weight</th>
+                        <th style="padding:8px 10px;">Karigar</th>
+                        <th style="padding:8px 10px;">Date</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for txn in gold_txns %}
                     <tr>
-                        <td><code>{{ txn.transaction_id }}</code></td>
-                        <td>{{ txn.get_transaction_type_display }}</td>
-                        <td>{{ txn.purity }}</td>
-                        <td><strong>{{ txn.weight_grams }}g</strong></td>
-                        <td>{{ txn.worker.name|default:"-" }}</td>
-                        <td>{{ txn.created_at|date:"d M H:i" }}</td>
+                        <td style="padding:10px;"><code>{{ txn.transaction_id }}</code></td>
+                        <td style="padding:10px;">{{ txn.get_transaction_type_display }}</td>
+                        <td style="padding:10px;">{{ txn.purity }}</td>
+                        <td style="padding:10px;"><strong style="color:#ffffff;">{{ txn.weight_grams }}g</strong></td>
+                        <td style="padding:10px;">{{ txn.worker.name|default:"-" }}</td>
+                        <td style="padding:10px; color:#888888;">{{ txn.created_at|date:"d M H:i" }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" style="text-align:center; color:var(--color-slate); padding:16px;">
+                        <td colspan="6" style="text-align:center; color:#666666; padding:20px;">
                             No gold transactions recorded for this piece yet.
                         </td>
                     </tr>
@@ -208,37 +253,39 @@
         </div>
 
         <!-- Stone Tracking Module -->
-        <div class="vitrine-card" style="margin-bottom:var(--spacing-24);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div style="background:#0a0a0a; border:1px solid #1e1e1e; border-radius:16px; padding:20px 24px; margin-bottom:24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
                 <div>
-                    <h3 style="font-size:19px;">Stone Allocation &amp; Setting</h3>
-                    <p style="font-size:13px; color:var(--color-graphite);">Diamonds and colored gemstones fitted into this mount</p>
+                    <h3 style="font-size:16px; font-weight:600; color:#ffffff; margin:0;">Stone Allocation &amp; Setting</h3>
+                    <p style="font-size:12.5px; color:#888888; margin-top:2px;">Diamonds and gemstones fitted into this piece</p>
                 </div>
-                <a href="{% url 'stone_inventory' %}" class="btn-ash" style="font-size:12px;">+ Issue Stones</a>
+                <a href="{% url 'stone_inventory' %}" class="btn-secondary" style="font-size:12.5px; height:32px; padding:0 12px; text-decoration:none;">
+                    + Issue Stones
+                </a>
             </div>
 
-            <table class="vitrine-table" style="font-size:13px;">
+            <table class="vitrine-table" style="font-size:13px; width:100%;">
                 <thead>
                     <tr>
-                        <th>Stone</th>
-                        <th>Action</th>
-                        <th>Qty</th>
-                        <th>Weight</th>
-                        <th>Karigar</th>
+                        <th style="padding:8px 10px;">Stone</th>
+                        <th style="padding:8px 10px;">Action</th>
+                        <th style="padding:8px 10px;">Qty</th>
+                        <th style="padding:8px 10px;">Weight</th>
+                        <th style="padding:8px 10px;">Karigar</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for st in stone_txns %}
                     <tr>
-                        <td><strong>{{ st.stone.stone_code }}</strong> ({{ st.stone.get_stone_type_display }})</td>
-                        <td>{{ st.get_transaction_type_display }}</td>
-                        <td><strong>{{ st.quantity }} pcs</strong></td>
-                        <td>{{ st.weight_carats }} ct</td>
-                        <td>{{ st.worker.name|default:"-" }}</td>
+                        <td style="padding:10px;"><strong style="color:#ffffff;">{{ st.stone.stone_code }}</strong> ({{ st.stone.get_stone_type_display }})</td>
+                        <td style="padding:10px;">{{ st.get_transaction_type_display }}</td>
+                        <td style="padding:10px;"><strong style="color:#ffffff;">{{ st.quantity }} pcs</strong></td>
+                        <td style="padding:10px;">{{ st.weight_carats }} ct</td>
+                        <td style="padding:10px;">{{ st.worker.name|default:"-" }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" style="text-align:center; color:var(--color-slate); padding:16px;">
+                        <td colspan="5" style="text-align:center; color:#666666; padding:20px;">
                             No stones allocated to this piece.
                         </td>
                     </tr>
@@ -247,11 +294,10 @@
             </table>
         </div>
 
-        <!-- Chronological Production Stage Timeline -->
-        <div class="vitrine-card" style="margin-bottom:var(--spacing-24);">
-            <h3 style="font-size:19px; margin-bottom:16px;">Chronological Atelier Timeline</h3>
-            
-            <div class="timeline">
+        <!-- Chronological Timeline -->
+        <div style="background:#0a0a0a; border:1px solid #1e1e1e; border-radius:16px; padding:20px 24px; margin-bottom:24px;">
+            <h3 style="font-size:16px; font-weight:600; color:#ffffff; margin:0 0 16px 0;">Chronological Atelier Timeline</h3>
+            <div class="timeline" style="margin-top:12px;">
                 {% for hist in stage_histories %}
                 <div class="timeline-item">
                     <div class="timeline-dot {% if hist.status == 'COMPLETED' %}completed{% endif %}"></div>
@@ -266,120 +312,82 @@
                         {% endif %}
                     </div>
                     <div class="timeline-desc">
-                        Karigar: <strong>{{ hist.worker.name|default:"Unassigned" }}</strong>
+                        Karigar: <strong style="color:#ffffff;">{{ hist.worker.name|default:"Unassigned" }}</strong>
                         {% if hist.actual_duration_minutes > 0 %}
-                            &bull; Duration: <strong>{{ hist.actual_duration_minutes }} minutes</strong>
+                            &bull; Duration: <strong>{{ hist.actual_duration_minutes }} mins</strong>
                         {% endif %}
                         {% if hist.notes %}&bull; Notes: {{ hist.notes }}{% endif %}
                     </div>
                 </div>
                 {% empty %}
-                <div style="font-size:13px; color:var(--color-slate);">Timeline initial stage pending.</div>
+                <div style="font-size:13px; color:#666666; padding:12px 0;">Timeline initial stage pending.</div>
                 {% endfor %}
             </div>
         </div>
-
-        <!-- Upload Photos Card -->
-        <div class="vitrine-card" id="photoUploadCard">
-            <h3 style="font-size:19px; margin-bottom:14px;">Upload Progress or Final Photograph</h3>
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="hidden" name="upload_photo" value="1">
-                
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
-                    <div class="form-group">
-                        <label class="form-label">Category</label>
-                        <select name="photo_category" class="form-select">
-                            <option value="PROGRESS">Progress / Bench Photo</option>
-                            <option value="FINAL_FRONT">Final Finished - Front View</option>
-                            <option value="FINAL_SIDE">Final Finished - Side View</option>
-                            <option value="FINAL_CLOSEUP">Final Close-up &amp; Hallmark</option>
-                            <option value="STONE_DETAIL">Stone Detail</option>
-                            <option value="REFERENCE_SKETCH">Customer Reference / Sketch</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Photo File</label>
-                        <div class="photo-upload-control">
-                            <input type="file" name="photo_file" id="photoFileInput" class="form-input" accept="image/*" required>
-                            <button type="button" class="image-camera-button" data-camera-target="photoFileInput"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h3l2-3h6l2 3h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="3.5"/></svg>Capture image</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Caption / Bench Notes</label>
-                    <input type="text" name="caption" class="form-input" placeholder="e.g. Prong alignment finished under microscope">
-                </div>
-
-                <button type="submit" class="btn-primary" style="font-size:14px; padding:8px 20px;">Upload to Digital Dossier</button>
-            </form>
-        </div>
     </div>
 
-    <!-- Right Column: Final Weight Audit, QC Status, QR, Customer Approval -->
+    <!-- RIGHT COLUMN: Weights, QC, QR, Photo Upload -->
     <div>
         <!-- Final Weight Audit Card -->
-        <div class="vitrine-card" style="margin-bottom:var(--spacing-24);">
-            <h4 style="font-size:16px; margin-bottom:14px;">Final Weight Audit</h4>
+        <div style="background:#0a0a0a; border:1px solid #1e1e1e; border-radius:16px; padding:20px 24px; margin-bottom:24px;">
+            <h4 style="font-size:15px; font-weight:600; color:#ffffff; margin:0 0 14px 0;">Weight &amp; Metal Audit</h4>
             
-            <div style="display:flex; flex-direction:column; gap:8px; font-size:14px; margin-bottom:16px;">
-                <div style="display:flex; justify-content:space-between;">
-                    <span style="color:var(--color-graphite);">Initial Estimate:</span>
-                    <strong>{{ job.expected_weight }}g</strong>
+            <div style="display:flex; flex-direction:column; gap:10px; font-size:13.5px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; padding-bottom:8px; border-bottom:1px solid #181818;">
+                    <span style="color:#888888;">Initial Estimate:</span>
+                    <strong style="color:#ffffff;">{{ job.expected_weight }}g</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding-bottom:8px; border-bottom:1px solid #181818;">
+                    <span style="color:#888888;">Final Gross Wt:</span>
+                    <strong style="color:#ffffff;">{{ job.final_gross_weight|default:"Pending" }}{% if job.final_gross_weight %}g{% endif %}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding-bottom:8px; border-bottom:1px solid #181818;">
+                    <span style="color:#888888;">Net Gold Wt:</span>
+                    <strong style="color:#ffffff;">{{ job.net_gold_weight|default:"Pending" }}{% if job.net_gold_weight %}g{% endif %}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding-bottom:8px; border-bottom:1px solid #181818;">
+                    <span style="color:#888888;">Stone Weight:</span>
+                    <strong style="color:#ffffff;">{{ job.stone_weight|default:"0.000" }}g</strong>
                 </div>
                 <div style="display:flex; justify-content:space-between;">
-                    <span style="color:var(--color-graphite);">Final Gross Wt:</span>
-                    <strong style="color:var(--color-electric-blue);">{{ job.final_gross_weight|default:"Pending" }}{% if job.final_gross_weight %}g{% endif %}</strong>
-                </div>
-                <div style="display:flex; justify-content:space-between;">
-                    <span style="color:var(--color-graphite);">Net Gold Wt:</span>
-                    <strong>{{ job.net_gold_weight|default:"Pending" }}{% if job.net_gold_weight %}g{% endif %}</strong>
-                </div>
-                <div style="display:flex; justify-content:space-between;">
-                    <span style="color:var(--color-graphite);">Stone Weight:</span>
-                    <strong>{{ job.stone_weight|default:"0.000" }}g</strong>
-                </div>
-                <div style="display:flex; justify-content:space-between;">
-                    <span style="color:var(--color-graphite);">Wastage / Loss:</span>
-                    <strong>{{ job.wastage_weight|default:"0.000" }}g</strong>
+                    <span style="color:#888888;">Wastage / Loss:</span>
+                    <strong style="color:#ffffff;">{{ job.wastage_weight|default:"0.000" }}g</strong>
                 </div>
             </div>
 
-            <!-- Form to record final weight -->
-            <button type="button" class="btn-ash" onclick="document.getElementById('finalWeightForm').style.display='block'; this.style.display='none';" style="width:100%; font-size:13px;">
+            <button type="button" class="btn-secondary" onclick="document.getElementById('finalWeightForm').style.display='block'; this.style.display='none';" style="width:100%; font-size:13px; height:36px;">
                 Enter / Update Final Weight
             </button>
 
-            <form method="post" id="finalWeightForm" style="display:none; margin-top:16px; border-top:1px solid var(--color-border); padding-top:16px;">
+            <form method="post" id="finalWeightForm" style="display:none; margin-top:16px; border-top:1px solid #1e1e1e; padding-top:16px;">
                 {% csrf_token %}
                 <input type="hidden" name="record_final_weight" value="1">
                 
-                <div class="form-group">
-                    <label class="form-label" style="font-size:12px;">Final Gross Weight (g) *</label>
-                    <input type="number" step="0.001" name="final_gross_weight" value="{{ job.final_gross_weight|default:'' }}" class="form-input" style="padding:8px 12px; font-size:13px;" required>
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label class="form-label" style="font-size:12px; color:#888888;">Final Gross Weight (g) *</label>
+                    <input type="number" step="0.001" name="final_gross_weight" value="{{ job.final_gross_weight|default:'' }}" class="form-input" style="padding:8px 12px; font-size:13px; width:100%; box-sizing:border-box;" required>
                 </div>
-                <div class="form-group">
-                    <label class="form-label" style="font-size:12px;">Net Gold Weight (g) *</label>
-                    <input type="number" step="0.001" name="net_gold_weight" value="{{ job.net_gold_weight|default:'' }}" class="form-input" style="padding:8px 12px; font-size:13px;" required>
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label class="form-label" style="font-size:12px; color:#888888;">Net Gold Weight (g) *</label>
+                    <input type="number" step="0.001" name="net_gold_weight" value="{{ job.net_gold_weight|default:'' }}" class="form-input" style="padding:8px 12px; font-size:13px; width:100%; box-sizing:border-box;" required>
                 </div>
-                <div class="form-group">
-                    <label class="form-label" style="font-size:12px;">Stone Weight (g)</label>
-                    <input type="number" step="0.001" name="stone_weight" value="{{ job.stone_weight|default:'0.000' }}" class="form-input" style="padding:8px 12px; font-size:13px;">
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label class="form-label" style="font-size:12px; color:#888888;">Stone Weight (g)</label>
+                    <input type="number" step="0.001" name="stone_weight" value="{{ job.stone_weight|default:'0.000' }}" class="form-input" style="padding:8px 12px; font-size:13px; width:100%; box-sizing:border-box;">
                 </div>
-                <div class="form-group">
-                    <label class="form-label" style="font-size:12px;">Wastage / Loss (g)</label>
-                    <input type="number" step="0.001" name="wastage_weight" value="{{ job.wastage_weight|default:'0.000' }}" class="form-input" style="padding:8px 12px; font-size:13px;">
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label class="form-label" style="font-size:12px; color:#888888;">Wastage / Loss (g)</label>
+                    <input type="number" step="0.001" name="wastage_weight" value="{{ job.wastage_weight|default:'0.000' }}" class="form-input" style="padding:8px 12px; font-size:13px; width:100%; box-sizing:border-box;">
                 </div>
-                <button type="submit" class="btn-primary" style="width:100%; font-size:13px; padding:8px;">Save Weights</button>
+                <button type="submit" class="btn-primary" style="width:100%; font-size:13px; height:36px;">Save Weights</button>
             </form>
         </div>
 
         <!-- Quality Check Card -->
-        <div class="vitrine-card" style="margin-bottom:var(--spacing-24);">
+        <div style="background:#0a0a0a; border:1px solid #1e1e1e; border-radius:16px; padding:20px 24px; margin-bottom:24px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <h4 style="font-size:16px;">Quality Inspection</h4>
-                <a href="{% url 'qc_inspect' job.job_id %}" class="btn-ghost" style="font-size:12px; padding:4px 10px;">Inspect &rarr;</a>
+                <h4 style="font-size:15px; font-weight:600; color:#ffffff; margin:0;">Quality Inspection</h4>
+                <a href="{% url 'qc_inspect' job.job_id %}" class="btn-secondary" style="font-size:12px; height:30px; padding:0 10px; text-decoration:none;">Inspect &rarr;</a>
             </div>
 
             {% if job.quality_check %}
@@ -387,30 +395,66 @@
                     <span class="badge-chip {% if job.quality_check.result == 'PASS' %}badge-green{% else %}badge-red{% endif %}">
                         {{ job.quality_check.get_result_display }}
                     </span>
-                    <span style="font-size:13px; color:var(--color-slate);">
-                        Passed: <strong>{{ job.quality_check.passed_items_count }} / 10</strong> items
+                    <span style="font-size:13px; color:#888888;">
+                        Passed: <strong style="color:#ffffff;">{{ job.quality_check.passed_items_count }} / 10</strong> checks
                     </span>
                 </div>
                 {% if job.quality_check.notes %}
-                    <div style="font-size:12px; color:var(--color-graphite); background:#fafafc; padding:10px; border-radius:10px;">
+                    <div style="font-size:12px; color:#aaaaaa; background:#111111; padding:10px; border-radius:8px; border:1px solid #1e1e1e;">
                         {{ job.quality_check.notes }}
                     </div>
                 {% endif %}
             {% else %}
-                <div style="font-size:13px; color:var(--color-slate);">
+                <div style="font-size:13px; color:#666666;">
                     QC inspection has not been run for this piece yet.
                 </div>
             {% endif %}
         </div>
 
-        <!-- Scannable QR Code Card -->
-        <div class="vitrine-card" style="text-align:center;">
-            <h4 style="font-size:16px; margin-bottom:12px;">Job Identification QR</h4>
+        <!-- Job QR Identification Card -->
+        <div style="background:#0a0a0a; border:1px solid #1e1e1e; border-radius:16px; padding:20px 24px; text-align:center; margin-bottom:24px;">
+            <h4 style="font-size:15px; font-weight:600; color:#ffffff; margin:0 0 12px 0;">Job Identification QR</h4>
             {% if job.qr_code_image %}
-                <img src="{{ job.qr_code_image.url }}" alt="QR Code for {{ job.job_id }}" style="width:140px; height:140px; margin:0 auto 12px; border-radius:16px; border:1px solid var(--color-border); display:block;">
+                <img src="{{ job.qr_code_image.url }}" alt="QR Code for {{ job.job_id }}" style="width:130px; height:130px; margin:0 auto 12px; border-radius:12px; border:1px solid #222222; display:block; background:#ffffff; padding:6px; box-sizing:border-box;">
             {% endif %}
-            <div style="font-family:monospace; font-size:13px; font-weight:600;">{{ job.job_id }}</div>
-            <p style="font-size:11px; color:var(--color-slate); margin-top:4px;">Scannable by Karigar phones to trigger station actions</p>
+            <div style="font-family:monospace; font-size:13px; font-weight:600; color:#ffffff;">{{ job.job_id }}</div>
+            <p style="font-size:11.5px; color:#888888; margin-top:4px;">Scannable by Karigar phones to trigger station actions</p>
+        </div>
+
+        <!-- Photograph Upload Drawer/Card -->
+        <div style="background:#0a0a0a; border:1px solid #1e1e1e; border-radius:16px; padding:20px 24px;" id="photoUploadCard">
+            <h4 style="font-size:15px; font-weight:600; color:#ffffff; margin:0 0 14px 0;">Upload Progress or Final Photo</h4>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="upload_photo" value="1">
+                
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label class="form-label" style="font-size:12px; color:#888888;">Category</label>
+                    <select name="photo_category" class="form-select" style="width:100%; box-sizing:border-box;">
+                        <option value="PROGRESS">Progress / Bench Photo</option>
+                        <option value="FINAL_FRONT">Final Finished - Front View</option>
+                        <option value="FINAL_SIDE">Final Finished - Side View</option>
+                        <option value="FINAL_CLOSEUP">Final Close-up &amp; Hallmark</option>
+                        <option value="STONE_DETAIL">Stone Detail</option>
+                        <option value="REFERENCE_SKETCH">Customer Reference / Sketch</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label class="form-label" style="font-size:12px; color:#888888;">Photo File</label>
+                    <div class="photo-upload-control">
+                        <input type="file" name="photo_file" id="photoFileInput" class="form-input" accept="image/*" required style="width:100%; box-sizing:border-box;">
+                        <button type="button" class="image-camera-button" data-camera-target="photoFileInput"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h3l2-3h6l2 3h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="3.5"/></svg>Camera</button>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label class="form-label" style="font-size:12px; color:#888888;">Caption / Bench Notes</label>
+                    <input type="text" name="caption" class="form-input" placeholder="e.g. Prong alignment finished" style="width:100%; box-sizing:border-box;">
+                </div>
+
+                <button type="submit" class="btn-primary" style="width:100%; font-size:13px; height:36px;">Upload to Digital Dossier</button>
+            </form>
         </div>
     </div>
 </div>
@@ -423,20 +467,19 @@
     bottom: 32px;
     right: 32px;
     z-index: 9999;
-    padding: 14px 22px;
-    border-radius: 14px;
-    font-size: 14px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13.5px;
     font-weight: 600;
-    font-family: var(--font-sans, inherit);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.8);
     display: none;
     align-items: center;
     gap: 10px;
-    min-width: 260px;
-    animation: toastSlideIn 0.3s cubic-bezier(0.16,1,0.3,1);
+    min-width: 240px;
+    animation: toastSlideIn 0.25s cubic-bezier(0.16,1,0.3,1);
   }
-  #stage-toast.success { background:#111; color:#4ade80; border:1px solid rgba(74,222,128,0.3); }
-  #stage-toast.error   { background:#111; color:#f87171; border:1px solid rgba(248,113,113,0.3); }
+  #stage-toast.success { background:#111111; color:#4ade80; border:1px solid #22c55e; }
+  #stage-toast.error   { background:#111111; color:#f87171; border:1px solid #ef4444; }
   @keyframes toastSlideIn {
     from { opacity:0; transform:translateY(16px); }
     to   { opacity:1; transform:translateY(0);    }
@@ -446,6 +489,15 @@
 <div id="stage-toast"></div>
 
 <script>
+function togglePhotoUploadCard() {
+  const card = document.getElementById('photoUploadCard');
+  if (card) {
+    card.scrollIntoView({ behavior: 'smooth' });
+    card.style.borderColor = '#ffffff';
+    setTimeout(() => { card.style.borderColor = '#1e1e1e'; }, 1500);
+  }
+}
+
 (function() {
   const CSRF = document.cookie.split('; ')
     .find(r => r.startsWith('csrftoken='))?.split('=')[1] || 
@@ -479,8 +531,7 @@
 
       if (data.success) {
         showToast(data.message, 'success');
-        // Reload the page after a short delay so the updated stage is visible
-        setTimeout(() => window.location.reload(), 1200);
+        setTimeout(() => window.location.reload(), 1000);
       } else {
         showToast(data.error || 'Action failed.', 'error');
         btn.disabled = false;
@@ -502,13 +553,11 @@
 
       if (confirmMsg && !window.confirm(confirmMsg)) return;
 
-      // Map button actions to API action keys
       const actionMap = {
         'start':    'start_work',
         'pause':    'pause_work',
         'resume':   'resume_work',
         'complete': 'advance_stage',
-        // Atelier workflow actions
         'give_polisher':    'give_polisher',
         'receive_polisher': 'receive_polisher',
         'give_stone':       'give_stone',

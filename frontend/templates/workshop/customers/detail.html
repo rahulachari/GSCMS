@@ -20,19 +20,17 @@
             </div>
         </div>
 
-        <!-- Header Actions: QR Bill, Add Item, Edit, and Animated Delete Button -->
+        <!-- Header Actions: Clean Unified Row -->
         <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-            <a href="{% url 'customer_qr_bill' customer.pk %}" class="btn-primary" style="padding:9px 18px; font-size:13.5px;" target="_blank">
+            <button type="button" onclick="openAddItemModal()" class="btn-primary" style="height:36px; padding:0 16px; font-weight:600;">
+                + Add Piece
+            </button>
+            <a href="{% url 'customer_qr_bill' customer.pk %}" class="btn-secondary" style="height:36px; padding:0 14px;" target="_blank">
                 &#128438; Customer QR Bill
             </a>
-            <button type="button" onclick="openAddItemModal()" class="btn-ghost" style="padding:9px 16px; font-size:13.5px; font-weight:600;">
-                + Add Another Item
-            </button>
-            <a href="{% url 'customer_edit' customer.pk %}" class="btn-ghost" style="padding:9px 16px; font-size:13.5px;">
+            <a href="{% url 'customer_edit' customer.pk %}" class="btn-secondary" style="height:36px; padding:0 14px;">
                 Edit Info
             </a>
-
-            <!-- User's Animated Delete Button (Soft delete customer to Recycle Bin) -->
             <div class="del-widget" data-slot="delete-button" data-state="closed" data-status="idle" data-item-type="customer" data-pk="{{ customer.pk }}" data-next="{% url 'customer_list' %}" title="Move customer to Recycle Bin">
                 <button type="button" class="del-trigger" aria-label="Delete customer">
                     <svg class="del-bin-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -68,9 +66,6 @@
 <div style="margin-bottom: 32px;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <h2 style="font-size:22px;">Jewellery Pieces &amp; Work Tracking</h2>
-        <button type="button" onclick="openAddItemModal()" class="btn-ghost" style="padding:6px 14px; font-size:13px;">
-            + Intake New Piece
-        </button>
     </div>
 
     <div style="display:flex; flex-direction:column; gap:20px;">
@@ -125,7 +120,7 @@
                             <span class="badge-chip badge-ash" style="font-size:13px; padding:6px 14px;">Received / Intake</span>
                         {% endif %}
 
-                        <a href="{% url 'job_dossier' j.job_id %}" class="btn-ghost" style="padding:6px 12px; font-size:12px;" target="_blank">
+                        <a href="{% url 'job_dossier' j.job_id %}" class="btn-secondary" style="height:36px; padding:0 14px; font-size:12.5px; text-decoration:none;" target="_blank">
                             QR Dossier
                         </a>
 

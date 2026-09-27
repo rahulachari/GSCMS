@@ -14,18 +14,7 @@
         <p style="font-size:13px; color:#666; margin-top:4px;">{{ current_market_date|date:"l, d F Y" }} &bull; Pillarigudi St, Chittoor</p>
     </div>
     <div style="display:flex; gap:10px; align-items:center;">
-        <a href="{% url 'customer_create' %}" class="flow-button flow-button--gold" style="text-decoration:none;">
-            <svg class="flow-btn-arr flow-btn-arr--left" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-            <span class="flow-btn-text">+ New Customer Intake</span>
-            <span class="flow-btn-circle"></span>
-            <svg class="flow-btn-arr flow-btn-arr--right" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-        </a>
+        <a href="{% url 'customer_create' %}" class="btn-primary" style="height:36px; padding:0 16px; font-weight:600; text-decoration:none;">+ New Customer Intake</a>
 
         <details class="dashboard-calc-dock" id="dashboardCalculatorDock">
             <summary class="dashboard-calc-toggle" aria-label="Open calculator">
@@ -136,12 +125,6 @@
                     <div style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:3px;">LIVE ATELIER TRACKING</div>
                     <h2 style="font-size:18px; font-weight:700; color:#f5f5f5; margin:0;">Works in Progress</h2>
                 </div>
-                <a href="{% url 'customer_create' %}" class="flow-button flow-button--gold" style="padding:6px 18px; font-size:12px; text-decoration:none;">
-                    <svg class="flow-btn-arr flow-btn-arr--left" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                    <span class="flow-btn-text">+ New Intake</span>
-                    <span class="flow-btn-circle"></span>
-                    <svg class="flow-btn-arr flow-btn-arr--right" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                </a>
             </div>
 
             <div style="padding:16px; display:flex; flex-direction:column; gap:12px;">
