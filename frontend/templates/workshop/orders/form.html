@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Book New Jewellery Order — {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 980px; margin: 0 auto;">
+    <div style="margin-bottom: var(--spacing-28);">
+        <a href="{% url 'order_list' %}" style="font-size:14px; color:var(--color-link-blue);">&larr; Back to Orders</a>
+        <h1 style="font-size:32px; margin-top:8px;">Book Jewellery Order</h1>
+        <p style="font-size:15px; color:var(--color-graphite);">Record customer requirements, reference design, and split multi-item jobs</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" id="orderCreateForm" data-auto-draft="true">
+        {% csrf_token %}
+
+        <!-- 1. Customer Section -->
+        <div class="vitrine-card" style="margin-bottom:var(--spacing-24);">
+            <h3 style="font-size:19px; margin-bottom:16px;">1. Customer Information</h3>
+            
+            <div style="display:flex; gap:20px; margin-bottom:16px;">
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                    <input type="radio" name="customer_choice" value="existing" checked onchange="toggleCustomerType()">
+                    <span>Existing Customer</span>
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                    <input type="radio" name="customer_choice" value="new" onchange="toggleCustomerType()">
+                    <span>New Customer</span>
+                </label>
+            </div>
+
+            <!-- Existing Customer Select -->
+            <div id="existingCustomerSection" class="form-group">
+                <label class="form-label" for="customer_id">Select Customer</label>
+                <select name="customer_id" id="customer_id" class="form-select">
+                    {% for c in customers %}
+                        <option value="{{ c.pk }}">{{ c.name }} &bull; {{ c.mobile }} ({{ c.customer_id }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- New Customer Fields -->
+            <div id="newCustomerSection" style="display:none; grid-template-columns: 1fr 1fr; gap:16px;">
+                <div class="form-group">
+                    <label class="form-label">Customer Full Name *</label>
+                    <input type="text" name="new_customer_name" class="form-input" placeholder="e.g. Ramesh Varma">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mobile Number *</label>
+                    <input type="text" name="new_customer_mobile" class="form-input" placeholder="e.g. +91 98490 12345">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email (Optional)</label>
+                    <input type="email" name="new_customer_email" class="form-input" placeholder="client@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Address / City</label>
+                    <input type="text" name="new_customer_address" class="form-input" placeholder="e.g. Hyderabad">
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Order Metadata -->
+        <div class="vitrine-card" style="margin-bottom:var(--spacing-24);">
+            <h3 style="font-size:19px; margin-bottom:16px;">2. Order Specifications</h3>
+            
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+                <div class="form-group">
+                    <label class="form-label">Order Type</label>
+                    <select name="order_type" class="form-select">
+                        <option value="NEW_JEWELLERY">New Jewellery</option>
+                        <option value="CUSTOM_ORDER" selected>Custom Bespoke Order</option>
+                        <option value="REPAIR">Repair</option>
+                        <option value="MODIFICATION">Modification</option>
+                        <option value="RE_POLISHING">Re-polishing</option>
+                        <option value="STONE_REPLACEMENT">Stone Replacement</option>
+                        <option value="RESIZING">Resizing</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Priority Level</label>
+                    <select name="priority" class="form-select">
+                        <option value="NORMAL" selected>Normal</option>
+                        <option value="IMPORTANT">Important</option>
+                        <option value="URGENT">Urgent (Express)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Required Delivery Date *</label>
+                    <input type="date" name="required_delivery_date" class="form-input" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Customer Instructions / Specifications</label>
+                <textarea name="customer_instructions" class="form-textarea" rows="2" placeholder="e.g. Size 16, Peacock motif on sides, matte antique finish with glossy edges..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Internal Workshop Notes</label>
+                <textarea name="internal_notes" class="form-textarea" rows="2" placeholder="Private workshop notes (not shown to customer)..."></textarea>
+            </div>
+        </div>
+
+        <!-- 3. Reference Design Photo Upload -->
+        <div class="vitrine-card" style="margin-bottom:var(--spacing-24);">
+            <h3 style="font-size:19px; margin-bottom:8px;">3. Reference Design / Sketch (Mandatory Visual)</h3>
+            <p style="font-size:13px; color:var(--color-graphite); margin-bottom:16px;">Attach customer's reference photo, WhatsApp screenshot, or goldsmith hand sketch.</p>
+            
+            <div style="border: 2px dashed var(--color-border); border-radius:18px; padding:24px; text-align:center; background:#fafafc;">
+                <input type="file" name="reference_image" id="reference_image" accept="image/*" class="form-input" style="max-width:320px; margin:0 auto 12px; display:block;">
+                <button type="button" class="image-camera-button" data-camera-target="reference_image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h3l2-3h6l2 3h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="3.5"/></svg>Capture reference</button>
+                <div style="font-size:12px; color:var(--color-slate);">Accepted: JPG, PNG, WEBP. Maximum size 10MB.</div>
+            </div>
+        </div>
+
+        <!-- 4. Split Jewellery Jobs (Multiple items per order) -->
+        <div class="vitrine-card" style="margin-bottom:var(--spacing-24);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <div>
+                    <h3 style="font-size:19px;">4. Jewellery Items (Jobs)</h3>
+                    <p style="font-size:13px; color:var(--color-graphite);">Each item receives an independent Job ID and stage workflow</p>
+                </div>
+                <button type="button" class="btn-ghost" onclick="addJobRow()" style="font-size:13px; padding:6px 16px;">
+                    + Add Another Item
+                </button>
+            </div>
+
+            <div id="jobItemsContainer">
+                <!-- Item Row 1 -->
+                <div class="job-item-row" style="background:#fafafc; border:1px solid var(--color-border); border-radius:18px; padding:18px; margin-bottom:12px;">
+                    <div style="display:grid; grid-template-columns: 140px 1fr 110px 120px 160px 40px; gap:12px; align-items:center;">
+                        <div>
+                            <label class="form-label" style="font-size:11px;">Type</label>
+                            <select name="item_type[]" class="form-select" style="padding:8px 10px; font-size:13px;">
+                                <option value="RING">Ring</option>
+                                <option value="CHAIN">Chain</option>
+                                <option value="NECKLACE">Necklace</option>
+                                <option value="BANGLE">Bangle</option>
+                                <option value="BRACELET">Bracelet</option>
+                                <option value="EARRINGS">Earrings</option>
+                                <option value="PENDANT">Pendant</option>
+                                <option value="ANKLET">Anklet</option>
+                                <option value="NOSE_PIN">Nose Pin</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size:11px;">Description / Title</label>
+                            <input type="text" name="item_title[]" class="form-input" placeholder="e.g. 22K Peacock Nakshi Ring" style="padding:8px 12px; font-size:13px;" required>
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size:11px;">Purity</label>
+                            <select name="item_purity[]" class="form-select" style="padding:8px 8px; font-size:13px;">
+                                <option value="22K" selected>22K (916)</option>
+                                <option value="24K">24K (999)</option>
+                                <option value="18K">18K (750)</option>
+                                <option value="20K">20K</option>
+                                <option value="14K">14K</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size:11px;">Est. Wt (Grams)</label>
+                            <input type="number" step="0.001" name="item_expected_weight[]" class="form-input" placeholder="0.000" style="padding:8px 10px; font-size:13px;" required>
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size:11px;">Initial Karigar</label>
+                            <select name="item_worker[]" class="form-select" style="padding:8px 8px; font-size:13px;">
+                                <option value="">Assign Later</option>
+                                {% for w in workers %}
+                                    <option value="{{ w.pk }}">{{ w.name }} ({{ w.get_specialization_display }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="text-align:center; padding-top:16px;">
+                            <button type="button" onclick="removeJobRow(this)" style="background:none; border:none; color:var(--color-slate); font-size:18px; cursor:pointer;" title="Remove Item">&times;</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Financials & Advance Payment -->
+        <div class="vitrine-card" style="margin-bottom:var(--spacing-32);">
+            <h3 style="font-size:19px; margin-bottom:16px;">5. Estimated Billing &amp; Advance Deposit</h3>
+            
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:16px;">
+                <div class="form-group">
+                    <label class="form-label">Total Estimated Charges (₹)</label>
+                    <input type="number" step="0.01" name="total_estimated_amount" id="total_estimated_amount" class="form-input" placeholder="0.00" oninput="calculateBalance()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Advance Payment Received (₹)</label>
+                    <input type="number" step="0.01" name="advance_paid" id="advance_paid" class="form-input" placeholder="0.00" oninput="calculateBalance()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Payment Mode</label>
+                    <select name="payment_method" class="form-select">
+                        <option value="UPI">UPI / PhonePe / GPay</option>
+                        <option value="CASH">Cash</option>
+                        <option value="BANK_TRANSFER">Bank Transfer (IMPS/NEFT)</option>
+                        <option value="CARD">Debit / Credit Card</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Payment Reference / UTR</label>
+                    <input type="text" name="payment_reference" class="form-input" placeholder="e.g. UTR12345678">
+                </div>
+            </div>
+
+            <div style="padding:16px; background:#fafafc; border-radius:14px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:14px; color:var(--color-graphite);">Outstanding Balance to be settled on delivery:</span>
+                <strong id="balanceDisplay" style="font-size:18px; color:var(--color-apple-ink);">₹0.00</strong>
+            </div>
+        </div>
+
+        <!-- Submit Cluster -->
+        <div style="display:flex; justify-content:flex-end; gap:16px; align-items:center;">
+            <a href="{% url 'order_list' %}" class="btn-ghost">Cancel</a>
+            <button type="submit" class="btn-primary" style="padding:12px 32px; font-size:16px;">
+                Confirm &amp; Create Jobs
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleCustomerType() {
+    const choice = document.querySelector('input[name="customer_choice"]:checked').value;
+    const existingSec = document.getElementById('existingCustomerSection');
+    const newSec = document.getElementById('newCustomerSection');
+
+    if (choice === 'new') {
+        existingSec.style.display = 'none';
+        newSec.style.display = 'grid';
+    } else {
+        existingSec.style.display = 'block';
+        newSec.style.display = 'none';
+    }
+}
+
+function calculateBalance() {
+    const est = parseFloat(document.getElementById('total_estimated_amount').value) || 0;
+    const adv = parseFloat(document.getElementById('advance_paid').value) || 0;
+    const bal = Math.max(0, est - adv);
+    document.getElementById('balanceDisplay').textContent = '₹' + bal.toFixed(2);
+}
+
+function addJobRow() {
+    const container = document.getElementById('jobItemsContainer');
+    const firstRow = container.querySelector('.job-item-row');
+    const newRow = firstRow.cloneNode(true);
+    // clear inputs
+    newRow.querySelectorAll('input').forEach(input => input.value = '');
+    container.appendChild(newRow);
+}
+
+function removeJobRow(btn) {
+    const container = document.getElementById('jobItemsContainer');
+    if (container.querySelectorAll('.job-item-row').length > 1) {
+        btn.closest('.job-item-row').remove();
+    } else {
+        alert("An order must contain at least one jewellery item.");
+    }
+}
+</script>
+{% endblock %}

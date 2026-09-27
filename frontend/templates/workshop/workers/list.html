@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Karigar Artisans Roster — {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--spacing-28); flex-wrap:wrap; gap:16px;">
+    <div>
+        <div class="hero-subtitle">Workshop Workforce</div>
+        <h1 style="font-size:32px;">Master Karigars &amp; Artisans</h1>
+    </div>
+    <div style="display:flex; gap:12px;">
+        <a href="{% url 'worker_station' %}" class="btn-primary">
+            Open Karigar Station &rarr;
+        </a>
+    </div>
+</div>
+
+<div class="vitrine-card" style="padding:0; overflow:hidden;">
+    <table class="vitrine-table">
+        <thead>
+            <tr>
+                <th>Worker ID</th>
+                <th>Artisan Name</th>
+                <th>Contact</th>
+                <th>Specialization</th>
+                <th>Skills &amp; Mastery</th>
+                <th>Active Jobs</th>
+                <th>Completed Today</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for w in workers %}
+            <tr>
+                <td><code>{{ w.worker_id }}</code></td>
+                <td><strong>{{ w.name }}</strong></td>
+                <td>{{ w.phone }}</td>
+                <td><span class="badge-chip badge-ash">{{ w.get_specialization_display }}</span></td>
+                <td style="font-size:13px; color:var(--color-graphite); max-width:240px;">{{ w.skills|default:"General Handcrafting" }}</td>
+                <td>
+                    <strong style="color:var(--color-electric-blue); font-size:16px;">{{ w.assigned_jobs_count }}</strong>
+                </td>
+                <td>
+                    <strong style="color:var(--status-green); font-size:16px;">{{ w.completed_today_count }}</strong>
+                </td>
+                <td>
+                    {% if w.is_active %}
+                        <span class="badge-chip badge-green">Active</span>
+                    {% else %}
+                        <span class="badge-chip badge-ash">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'worker_station_worker' w.worker_id %}" class="btn-ghost" style="padding:4px 12px; font-size:12px;">
+                        Bench Station &rarr;
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" style="text-align:center; padding:40px; color:var(--color-slate);">
+                    No artisans configured yet.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

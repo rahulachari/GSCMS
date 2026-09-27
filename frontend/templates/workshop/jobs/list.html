@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Jewellery Jobs Floor — {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--spacing-28); flex-wrap:wrap; gap:16px;">
+    <div>
+        <div class="hero-subtitle">Production Operations</div>
+        <h1 style="font-size:32px;">Jewellery Jobs Floor</h1>
+    </div>
+    <div style="display:flex; gap:12px;">
+        <a href="{% url 'export_jobs_excel' %}" class="btn-ash">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export XLSX
+        </a>
+        <a href="{% url 'order_create' %}" class="btn-primary">
+            + New Order
+        </a>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="vitrine-card" style="padding:16px 20px; margin-bottom:var(--spacing-24);">
+    <form method="get" style="display:flex; gap:14px; align-items:center; flex-wrap:wrap;">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search Job ID, Item title, customer..." class="form-input" style="max-width:260px; padding:8px 14px; font-size:14px;">
+        
+        <select name="stage" class="form-select" style="max-width:180px; padding:8px 12px; font-size:14px;">
+            <option value="">All Stages</option>
+            <option value="ORDER_RECEIVED" {% if stage_filter == 'ORDER_RECEIVED' %}selected{% endif %}>Order Received</option>
+            <option value="MAKING" {% if stage_filter == 'MAKING' %}selected{% endif %}>Making / Handcrafting</option>
+            <option value="STONE_SETTING" {% if stage_filter == 'STONE_SETTING' %}selected{% endif %}>Stone Setting</option>
+            <option value="POLISHING" {% if stage_filter == 'POLISHING' %}selected{% endif %}>Polishing &amp; Finish</option>
+            <option value="QUALITY_CHECK" {% if stage_filter == 'QUALITY_CHECK' %}selected{% endif %}>Quality Check (QC)</option>
+            <option value="READY" {% if stage_filter == 'READY' %}selected{% endif %}>Ready for Delivery</option>
+            <option value="DELIVERED" {% if stage_filter == 'DELIVERED' %}selected{% endif %}>Delivered</option>
+        </select>
+
+        <select name="worker" class="form-select" style="max-width:180px; padding:8px 12px; font-size:14px;">
+            <option value="">All Karigars</option>
+            {% for w in workers %}
+                <option value="{{ w.pk }}" {% if worker_filter == w.pk|stringformat:"s" %}selected{% endif %}>{{ w.name }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="purity" class="form-select" style="max-width:130px; padding:8px 12px; font-size:14px;">
+            <option value="">All Purities</option>
+            <option value="24K" {% if purity_filter == '24K' %}selected{% endif %}>24K</option>
+            <option value="22K" {% if purity_filter == '22K' %}selected{% endif %}>22K</option>
+            <option value="18K" {% if purity_filter == '18K' %}selected{% endif %}>18K</option>
+        </select>
+
+        <label style="display:flex; align-items:center; gap:6px; font-size:14px; cursor:pointer;">
+            <input type="checkbox" name="delayed" value="1" {% if delayed_only %}checked{% endif %}>
+            <span style="color:var(--status-red); font-weight:500;">Delayed Only</span>
+        </label>
+
+        <button type="submit" class="btn-ghost" style="padding:8px 18px; font-size:14px;">Apply</button>
+        {% if query or stage_filter or worker_filter or purity_filter or delayed_only %}
+            <a href="{% url 'job_list' %}" class="btn-ash" style="font-size:13px;">Reset</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Jobs Table -->
+<div class="vitrine-card" style="padding:0; overflow:hidden;">
+    <table class="vitrine-table">
+        <thead>
+            <tr>
+                <th>Piece</th>
+                <th>Job ID</th>
+                <th>Jewellery Item</th>
+                <th>Customer</th>
+                <th>Purity &amp; Est. Wt</th>
+                <th>Current Stage</th>
+                <th>Karigar</th>
+                <th>Target Date</th>
+                <th>Status / Delay</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs %}
+            <tr>
+                <td style="width:60px;">
+                    {% if job.reference_photo %}
+                        <img src="{{ job.reference_photo }}" style="width:48px; height:48px; border-radius:10px; object-fit:cover; border:1px solid var(--color-border);" alt="{{ job.title }}">
+                    {% elif job.final_photo %}
+                        <img src="{{ job.final_photo }}" style="width:48px; height:48px; border-radius:10px; object-fit:cover; border:1px solid var(--color-border);" alt="{{ job.title }}">
+                    {% else %}
+                        <div style="width:48px; height:48px; border-radius:10px; background:#f0f0f4; display:flex; align-items:center; justify-content:center; font-size:10px; color:#86868b;">-</div>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'job_detail' job.job_id %}" style="font-weight:600; color:var(--color-apple-ink);">
+                        {{ job.job_id }}
+                    </a>
+                </td>
+                <td>
+                    <strong>{{ job.title }}</strong>
+                    <div style="font-size:12px; color:var(--color-slate);">{{ job.get_jewellery_type_display }}</div>
+                </td>
+                <td>
+                    <strong>{{ job.order.customer.name }}</strong>
+                    <div style="font-size:12px; color:var(--color-slate);">{{ job.order.customer.mobile }}</div>
+                </td>
+                <td>
+                    <strong>{{ job.gold_purity }}</strong> &bull; {{ job.expected_weight }}g
+                </td>
+                <td>
+                    <span class="badge-chip badge-blue">{{ job.get_current_stage_display }}</span>
+                    <div style="font-size:11px; color:var(--color-slate); margin-top:3px;">{{ job.get_current_location_display }}</div>
+                </td>
+                <td>
+                    <strong>{{ job.current_worker.name|default:"Unassigned" }}</strong>
+                </td>
+                <td>
+                    {{ job.target_date|date:"d M Y, h:i A"|default:"-" }}
+                </td>
+                <td>
+                    {% if job.is_delayed %}
+                        <span class="badge-chip badge-red">DELAYED ({{ job.delay_duration }})</span>
+                    {% elif job.overall_status == 'READY' %}
+                        <span class="badge-chip badge-green">Ready</span>
+                    {% elif job.overall_status == 'DELIVERED' %}
+                        <span class="badge-chip badge-green">Delivered</span>
+                    {% else %}
+                        <span class="badge-chip badge-ash">{{ job.get_overall_status_display }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div style="display:inline-flex; align-items:center; gap:6px;">
+                        <a href="{% url 'job_dossier' job.job_id %}" class="btn-ghost" style="padding:4px 8px; font-size:11.5px; font-weight:700; color:var(--accent-blue);" title="View Item Dossier & QR">
+                            &#128247; QR
+                        </a>
+                        <a href="{% url 'job_detail' job.job_id %}" class="btn-ghost" style="padding:4px 10px; font-size:12px;">
+                            Hub &rarr;
+                        </a>
+                        <button type="button" onclick="triggerSoftDelete('job', {{ job.pk }}, '{% url 'job_list' %}')" class="btn-delete" title="Move to Recycle Bin">
+                            &#128465;
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="10" style="text-align:center; padding:40px; color:var(--color-slate);">
+                    No jewellery jobs found.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ job.title }} — Item Dossier &amp; QR Certificate | {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <!-- Breadcrumb & Actions -->
+    <div class="no-print" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+        <a href="{% url 'job_detail' job.job_id %}" style="font-size:14px; font-weight:600; color:var(--text-black);">&larr; Back to Job Management Hub</a>
+        <div style="display:flex; gap:10px;">
+            <button type="button" onclick="window.print()" class="btn-ghost">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                Print Item Card
+            </button>
+            <a href="{% url 'job_detail' job.job_id %}" class="btn-primary">View Internal Record</a>
+        </div>
+    </div>
+
+    <!-- Main Item Dossier Card -->
+    <div class="pearl-card" style="padding:36px; border:2px solid var(--pearl-border); position:relative; overflow:hidden;">
+        <!-- Top Atelier Header -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid var(--pearl-border-light); padding-bottom:24px; margin-bottom:24px; flex-wrap:wrap; gap:16px;">
+            <div>
+                <span class="badge-chip badge-gold" style="background:#fff8e1; color:#996515; font-size:11px; margin-bottom:8px;">
+                    BESPOKE JEWELLERY DOSSIER
+                </span>
+                <h1 style="font-size:32px; color:var(--text-black); margin-top:4px;">{{ job.title }}</h1>
+                <div style="font-size:14px; color:var(--text-muted); margin-top:4px;">
+                    Specific Item Type: <strong>{{ job.get_jewellery_type_display }}</strong> &bull; Atelier Identifier: <code>{{ job.job_id }}</code>
+                </div>
+            </div>
+
+            <!-- Item-Specific QR Code -->
+            <div style="text-align:center; background:var(--pearl-card); border:1px solid var(--pearl-border); padding:10px 14px; border-radius:16px; box-shadow:var(--shadow-card);">
+                {% if job.qr_code_image %}
+                    <img src="{{ job.qr_code_image.url }}" alt="Item QR {{ job.job_id }}" style="width:110px; height:110px; object-fit:contain; display:block; margin:0 auto;">
+                {% endif %}
+                <span style="font-size:11px; font-weight:700; color:var(--text-black); margin-top:4px; display:block; font-family:var(--font-mono);">
+                    SCAN ITEM QR
+                </span>
+            </div>
+        </div>
+
+        <!-- 3-Column Highlights: Customer, Dates, Specifications -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:20px; margin-bottom:28px;">
+            <!-- 1. Customer Given By -->
+            <div style="background:var(--pearl-bg-subtle); border:1px solid var(--pearl-border); border-radius:16px; padding:18px;">
+                <div style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">
+                    CUSTOMER (PERSON WHO GAVE ITEM)
+                </div>
+                <div style="font-size:18px; font-weight:800; color:var(--text-black);">{{ customer.name|default:"Patron Walk-in" }}</div>
+                <div style="font-size:14px; font-weight:600; color:var(--accent-blue); margin-top:4px; font-family:var(--font-mono);">
+                    &#128222; {{ customer.mobile|default:"-" }}
+                </div>
+                {% if customer.address %}
+                    <div style="font-size:12.5px; color:var(--text-muted); margin-top:6px;">{{ customer.address }}</div>
+                {% endif %}
+            </div>
+
+            <!-- 2. Dates: Given Date & Delivery Date -->
+            <div style="background:var(--pearl-bg-subtle); border:1px solid var(--pearl-border); border-radius:16px; padding:18px;">
+                <div style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">
+                    DATE TIMELINE
+                </div>
+                <div style="margin-bottom:8px;">
+                    <div style="font-size:12px; color:var(--text-muted);">When item was given:</div>
+                    <div style="font-size:15px; font-weight:700; color:var(--text-black);">
+                        &#128197; {{ job.order.created_at|date:"d F Y, h:i A"|default:job.created_at|date:"d F Y" }}
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size:12px; color:var(--text-muted);">When we return / deliver item:</div>
+                    <div style="font-size:15px; font-weight:700; color:{% if job.overall_status == 'DELIVERED' or job.overall_status == 'READY' %}var(--accent-green){% else %}var(--text-black){% endif %};">
+                        &#127873; {{ job.target_date|date:"d F Y, h:i A"|default:"Scheduled for Delivery" }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Gold & Material Specifications -->
+            <div style="background:var(--pearl-bg-subtle); border:1px solid var(--pearl-border); border-radius:16px; padding:18px;">
+                <div style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">
+                    GOLD &amp; WEIGHT METRICS
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span style="color:var(--text-muted); font-size:13px;">Gold Purity:</span>
+                    <strong style="color:var(--text-black);">{{ job.gold_purity }}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span style="color:var(--text-muted); font-size:13px;">Expected Weight:</span>
+                    <strong>{{ job.expected_weight }} g</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span style="color:var(--text-muted); font-size:13px;">Final Gross Weight:</span>
+                    <strong style="color:var(--accent-green);">{{ job.final_gross_weight|default:"In-progress" }} {% if job.final_gross_weight %}g{% endif %}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:var(--text-muted); font-size:13px;">Finishing Status:</span>
+                    <span class="badge-chip {% if job.overall_status == 'READY' or job.overall_status == 'DELIVERED' %}badge-green{% else %}badge-blue{% endif %}" style="font-size:11px;">
+                        {{ job.get_current_stage_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- FINISHING PICTURE & VISUAL WORKSHOP SHOWCASE -->
+        <div style="border-top:1px solid var(--pearl-border); padding-top:24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="font-size:18px; color:var(--text-black); display:flex; align-items:center; gap:8px;">
+                    <span>Finishing &amp; Finished Jewellery Photograph</span>
+                    <span class="badge-chip badge-gold" style="font-size:10px;">VERIFIED PIECE</span>
+                </h3>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:20px;">
+                <!-- Final Finishing Picture -->
+                <div>
+                    <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:6px; text-transform:uppercase;">
+                        Final Finishing Picture (Delivered State)
+                    </div>
+                    {% if final_photo %}
+                        <div style="border-radius:18px; overflow:hidden; border:1px solid var(--pearl-border); box-shadow:var(--shadow-sm); background:#000;">
+                            <img src="{{ final_photo }}" alt="Finished {{ job.title }}" style="width:100%; height:280px; object-fit:contain; display:block;">
+                        </div>
+                    {% else %}
+                        <div style="height:220px; border-radius:18px; border:2px dashed var(--pearl-border); display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-muted); background:var(--pearl-bg-subtle);">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="margin-bottom:8px;">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            <span style="font-weight:600; font-size:13px;">Piece Currently on Karigar Bench</span>
+                            <span style="font-size:11.5px; margin-top:2px;">Final photograph will be uploaded upon QC finish</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Initial Reference Design Given by Customer -->
+                <div>
+                    <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:6px; text-transform:uppercase;">
+                        Original Reference / Item Given by Customer
+                    </div>
+                    {% if ref_photo %}
+                        <div style="border-radius:18px; overflow:hidden; border:1px solid var(--pearl-border); box-shadow:var(--shadow-sm); background:#000;">
+                            <img src="{{ ref_photo }}" alt="Reference {{ job.title }}" style="width:100%; height:280px; object-fit:contain; display:block;">
+                        </div>
+                    {% else %}
+                        <div style="height:220px; border-radius:18px; border:2px dashed var(--pearl-border); display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-muted); background:var(--pearl-bg-subtle);">
+                            <span style="font-size:13px;">No reference photo attached</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Atelier Verification Seal -->
+        <div style="margin-top:32px; border-top:1px solid var(--pearl-border); padding-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div style="font-size:12.5px; color:var(--text-muted);">
+                Authorized Goldsmith Atelier &bull; Hallmarked &bull; <strong>{{ workshop_settings.name }}</strong>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span class="badge-chip badge-green">&#10003; 100% Authentic Fine Craftsmanship</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

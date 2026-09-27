@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Backup &amp; Disaster Recovery Center — {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--spacing-28); flex-wrap:wrap; gap:16px;">
+    <div>
+        <div class="hero-subtitle">Data Preservation &amp; Permanence</div>
+        <h1 style="font-size:32px;">Workshop Backup Center</h1>
+        <p style="font-size:15px; color:var(--color-graphite); margin-top:4px;">Permanent archival of SQLite database, gold transactions, and jewellery photographs</p>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="backup_now" value="1">
+        <button type="submit" class="btn-primary" style="padding:12px 28px; font-size:16px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:6px;">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            BACKUP NOW
+        </button>
+    </form>
+</div>
+
+<!-- System Health Status Box -->
+<div class="vitrine-card" style="margin-bottom:var(--spacing-32); background:#fafafc;">
+    <h3 style="font-size:18px; margin-bottom:16px;">Live Workshop Data Status</h3>
+    
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:16px;">
+        <div style="background:white; padding:16px; border-radius:14px; border:1px solid var(--color-border);">
+            <div style="font-size:12px; color:var(--color-slate);">Database Engine</div>
+            <strong style="font-size:16px; color:var(--status-green);">SQLite3 &bull; OK</strong>
+            <div style="font-size:11px; color:var(--color-graphite); margin-top:4px;">Size: {{ db_size_kb }} KB</div>
+        </div>
+
+        <div style="background:white; padding:16px; border-radius:14px; border:1px solid var(--color-border);">
+            <div style="font-size:12px; color:var(--color-slate);">Jewellery Photos Vault</div>
+            <strong style="font-size:16px; color:var(--status-green);">Storage &bull; OK</strong>
+            <div style="font-size:11px; color:var(--color-graphite); margin-top:4px;">Partitioned by Job ID</div>
+        </div>
+
+        <div style="background:white; padding:16px; border-radius:14px; border:1px solid var(--color-border);">
+            <div style="font-size:12px; color:var(--color-slate);">Last Backup Timestamp</div>
+            <strong style="font-size:15px; color:var(--color-apple-ink);">
+                {{ last_backup.created_at|date:"d M Y, h:i A"|default:"None on record" }}
+            </strong>
+            <div style="font-size:11px; color:var(--color-graphite); margin-top:4px;">Status: {{ last_backup.status|default:"Pending" }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Historical Backups List -->
+<div class="vitrine-card" style="margin-bottom:var(--spacing-32); padding:0; overflow:hidden;">
+    <div style="padding:16px 20px; border-bottom:1px solid var(--color-border);">
+        <h3 style="font-size:18px;">Historical Archive Snapshots</h3>
+    </div>
+    
+    <table class="vitrine-table">
+        <thead>
+            <tr>
+                <th>Backup Filename</th>
+                <th>Archive Type</th>
+                <th>File Size</th>
+                <th>Date &amp; Time Created</th>
+                <th>Status</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in backups %}
+            <tr>
+                <td><code>{{ b.backup_file }}</code></td>
+                <td><span class="badge-chip badge-ash">{{ b.backup_type }}</span></td>
+                <td><strong>{{ b.file_size_display }}</strong></td>
+                <td>{{ b.created_at|date:"d M Y, h:i:s A" }}</td>
+                <td><span class="badge-chip badge-green">{{ b.status }}</span></td>
+                <td style="font-size:13px; color:var(--color-graphite);">{{ b.notes|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align:center; padding:30px; color:var(--color-slate);">
+                    No historical backups generated yet. Click "BACKUP NOW" above to create the first snapshot.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Restore Instructions Card -->
+<div class="vitrine-card">
+    <h3 style="font-size:18px; margin-bottom:12px;">Disaster Recovery &amp; Restore Instructions</h3>
+    <p style="font-size:14px; color:var(--color-graphite); line-height:1.5;">
+        Every backup ZIP package contains the complete <code>db.sqlite3</code> database and the full <code>media/</code> tree (high-res job reference sketches, progress photos, final hallmark photos, and QR codes).
+    </p>
+
+    <div style="background:#fafafc; border-radius:14px; padding:16px; margin-top:14px; font-family:monospace; font-size:13px; color:#1d1d1f; line-height:1.6;">
+        # Step 1: Locate your backup in the 'backups/' directory<br>
+        # Step 2: Unzip the GSCMS_Backup_YYYYMMDD_HHMMSS.zip<br>
+        # Step 3: Copy 'db.sqlite3' into 'backend/'<br>
+        # Step 4: Copy the 'media/' folder into 'backend/media/'<br>
+        # Step 5: Restart the workshop server: python manage.py runserver
+    </div>
+</div>
+{% endblock %}

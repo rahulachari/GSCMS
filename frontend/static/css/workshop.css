@@ -1,0 +1,851 @@
+/* ==========================================================================
+   GSCMS Workshop Specific Components
+   Apple España Vitrine Experience
+   ========================================================================== */
+
+/* Sub-header Hero Bar */
+.hero-header {
+  padding: var(--spacing-40) 0 var(--spacing-28);
+}
+
+.hero-subtitle {
+  font-size: var(--text-body-sm);
+  color: var(--color-graphite);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-8);
+}
+
+.hero-title {
+  font-size: clamp(32px, 3.5vw, 48px);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-apple-ink);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+
+.hero-meta {
+  margin-top: var(--spacing-12);
+  font-size: var(--text-body);
+  color: var(--color-graphite);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-24);
+  flex-wrap: wrap;
+}
+
+/* Quick KPI Cards Grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--spacing-16);
+  margin-bottom: var(--spacing-32);
+}
+
+.kpi-card {
+  background-color: #111111;
+  border-radius: var(--radius-cards);
+  padding: var(--spacing-24);
+  border: 1px solid #2a2a2a;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.kpi-card:hover {
+  border-color: #3a3a3a;
+}
+
+.kpi-label {
+  font-size: 13px;
+  color: var(--color-slate);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.01em;
+}
+
+.kpi-value {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-apple-ink);
+  margin: var(--spacing-8) 0;
+  line-height: 1;
+}
+
+.kpi-footnote {
+  font-size: 12px;
+  color: var(--color-graphite);
+}
+
+/* Attention Required / Delayed Alert Box */
+.attention-card {
+  background-color: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.20);
+  border-radius: var(--radius-cards);
+  padding: var(--spacing-24);
+  margin-bottom: var(--spacing-32);
+}
+
+.attention-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-16);
+}
+
+.attention-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  font-size: 17px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--status-red);
+}
+
+.delay-item {
+  background-color: #111111;
+  border-radius: 18px;
+  padding: 16px 20px;
+  border: 1px solid rgba(239, 68, 68, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-12);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.delay-badge {
+  background-color: var(--status-red);
+  color: white;
+  padding: 4px 12px;
+  border-radius: var(--radius-tags);
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.02em;
+}
+
+/* Kanban Workflow Board */
+.kanban-container {
+  margin-bottom: var(--spacing-48);
+}
+
+.kanban-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-20);
+}
+
+.kanban-board {
+  display: flex;
+  gap: var(--spacing-16);
+  overflow-x: auto;
+  padding-bottom: var(--spacing-16);
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.kanban-col {
+  flex: 0 0 280px;
+  background-color: #0a0a0a;
+  border-radius: 24px;
+  padding: var(--spacing-16);
+  display: flex;
+  flex-direction: column;
+  min-height: 480px;
+  border: 1px solid #1e1e1e;
+}
+
+.kanban-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px var(--spacing-12);
+}
+
+.kanban-col-title {
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-apple-ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kanban-count-pill {
+  background-color: var(--color-ash);
+  color: var(--color-graphite);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.kanban-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  flex-grow: 1;
+}
+
+/* Job Card in Kanban & Lists */
+.job-card {
+  background-color: #111111;
+  border-radius: 18px;
+  padding: var(--spacing-16);
+  border: 1px solid #2a2a2a;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  position: relative;
+}
+
+.job-card:hover {
+  border-color: #444444;
+  transform: translateY(-2px);
+}
+
+.job-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.job-id {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-apple-ink);
+}
+
+.job-customer {
+  font-size: 12px;
+  color: var(--color-slate);
+}
+
+.job-visual-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.job-thumbnail {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  object-fit: cover;
+  background-color: #f7f7f9;
+  border: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.job-item-title {
+  font-size: 14px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-apple-ink);
+  line-height: 1.25;
+}
+
+.job-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--color-graphite);
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: 8px;
+}
+
+.job-worker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: var(--font-weight-medium);
+}
+
+/* Reference vs Final Comparison Slider / Vitrine */
+.comparison-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-24);
+  background-color: #111111;
+  border-radius: var(--radius-cards);
+  padding: var(--spacing-28);
+  border: 1px solid #2a2a2a;
+  margin-bottom: var(--spacing-32);
+}
+
+@media (max-width: 768px) {
+  .comparison-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.comparison-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.comparison-label {
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-graphite);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--spacing-12);
+}
+
+.comparison-img-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: #0a0a0a;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.comparison-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.comparison-img-wrapper:hover img {
+  transform: scale(1.03);
+}
+
+/* Chronological Timeline */
+.timeline {
+  position: relative;
+  padding-left: 28px;
+  margin: var(--spacing-20) 0;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background-color: var(--color-border);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: var(--spacing-20);
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -28px;
+  top: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: var(--color-pure-white);
+  border: 3px solid var(--color-electric-blue);
+}
+
+.timeline-dot.completed {
+  border-color: var(--status-green);
+  background-color: var(--status-green);
+}
+
+.timeline-time {
+  font-size: 12px;
+  color: var(--color-slate);
+  margin-bottom: 2px;
+}
+
+.timeline-title {
+  font-size: 15px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-apple-ink);
+}
+
+.timeline-desc {
+  font-size: 13px;
+  color: var(--color-graphite);
+  margin-top: 4px;
+}
+
+/* Quick Search Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 2000;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 10vh;
+}
+
+.modal-backdrop.active {
+  display: flex;
+}
+
+.search-modal {
+  width: 100%;
+  max-width: 640px;
+  background-color: #111111;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+  border: 1px solid #2a2a2a;
+}
+
+.search-input-box {
+  display: flex;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #2a2a2a;
+  gap: 12px;
+}
+
+.search-input-box input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 18px;
+  font-family: var(--font-text);
+  color: #f5f5f5;
+}
+
+.search-results-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  text-decoration: none;
+  color: #a0a0a0;
+}
+
+.search-result-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Worker Karigar Station Controls */
+.karigar-station-card {
+  background: #111111;
+  border-radius: var(--radius-cards);
+  padding: var(--spacing-32);
+  border: 1px solid #2a2a2a;
+}
+
+.karigar-action-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--spacing-16);
+  margin-top: var(--spacing-24);
+}
+
+.btn-station {
+  padding: 16px;
+  border-radius: 18px;
+  font-size: 16px;
+  font-weight: var(--font-weight-semibold);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.1s ease, filter 0.2s ease;
+}
+
+.btn-station:active {
+  transform: scale(0.97);
+}
+
+.btn-station-start { background-color: #eafaf1; color: #1c7430; border: 1px solid #34c759; }
+.btn-station-pause { background-color: #fff8eb; color: #b26a00; border: 1px solid #ff9500; }
+.btn-station-complete { background-color: #0071e3; color: white; }
+.btn-station-issue { background-color: #ffefee; color: #ff3b30; border: 1px solid #ff3b30; }
+
+/* Printable Job Card with QR */
+@media print {
+  body {
+    background-color: white !important;
+  }
+  .global-nav, .no-print {
+    display: none !important;
+  }
+  .printable-job-card {
+    border: 2px solid #000 !important;
+    padding: 24px !important;
+    max-width: 100% !important;
+  }
+}
+
+/* ==========================================================================
+   Flow Button Component — OLED Dark Theme
+   Expanding circle fill uses chalk white (#f5f5f5) against true black.
+   Usage:
+     <button class="flow-button">
+       <svg class="flow-btn-arr flow-btn-arr--left" ...>...</svg>
+       <span class="flow-btn-text">Label</span>
+       <span class="flow-btn-circle"></span>
+       <svg class="flow-btn-arr flow-btn-arr--right" ...>...</svg>
+     </button>
+   ========================================================================== */
+
+/* ==========================================================================
+   Flow Button Component — Liquid Glass SaaS Design
+   Rounded pill with fluid transition to rounded card, sliding arrows,
+   expanding circular liquid light, and pristine backdrop blur.
+   ========================================================================== */
+
+.flow-button,
+.btn-primary.flow-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  overflow: hidden;
+  border-radius: 100px;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  padding: 10px 28px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #f0f0f5;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    border-color 600ms cubic-bezier(0.23, 1, 0.32, 1),
+    color        600ms cubic-bezier(0.23, 1, 0.32, 1),
+    border-radius 600ms cubic-bezier(0.23, 1, 0.32, 1),
+    background   600ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow   600ms cubic-bezier(0.23, 1, 0.32, 1);
+  font-family: inherit;
+  line-height: 1;
+  user-select: none;
+  -webkit-user-select: none;
+  white-space: nowrap;
+}
+
+/* Hovering: pill -> rounded card (12px), white fill, dark text */
+.flow-button:hover,
+.btn-primary.flow-button:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #050505 !important;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Active press */
+.flow-button:active,
+.btn-primary.flow-button:active {
+  transform: scale(0.95);
+}
+
+/* Gold variant for primary actions */
+.flow-button--gold {
+  border-color: rgba(251, 191, 36, 0.3);
+  background: rgba(251, 191, 36, 0.08);
+  color: #fef08a;
+}
+.flow-button--gold:hover {
+  border-color: transparent;
+  color: #000 !important;
+}
+
+/* Secondary ghost flow button */
+.flow-button--secondary {
+  border-color: rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.02);
+  color: #888899;
+}
+.flow-button--secondary:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #000 !important;
+}
+
+/* ---- Left arrow (enters from left on hover) ---- */
+.flow-btn-arr--left {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  left: -25%;
+  stroke: #888888;
+  fill: none;
+  z-index: 9;
+  transition:
+    left   800ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    stroke 800ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.flow-button:hover .flow-btn-arr--left,
+.btn-primary.flow-button:hover .flow-btn-arr--left {
+  left: 14px;
+  stroke: #000000;
+}
+
+/* ---- Button label text ---- */
+.flow-btn-text {
+  position: relative;
+  z-index: 2;
+  transform: translateX(0);          /* default: centered */
+  transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1), color 600ms ease;
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Only offset text when arrows are present (full flow-button) */
+.flow-button:has(.flow-btn-arr--left) .flow-btn-text {
+  transform: translateX(-10px);
+}
+
+.flow-button:hover .flow-btn-text,
+.btn-primary.flow-button:hover .flow-btn-text {
+  transform: translateX(10px);
+  color: #000000 !important;
+}
+
+/* ---- Expanding circle fill ---- */
+.flow-btn-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  background: #f5f5f7;
+  border-radius: 50%;
+  opacity: 0;
+  transition:
+    width   800ms cubic-bezier(0.19, 1, 0.22, 1),
+    height  800ms cubic-bezier(0.19, 1, 0.22, 1),
+    opacity 800ms cubic-bezier(0.19, 1, 0.22, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.flow-button:hover .flow-btn-circle,
+.btn-primary.flow-button:hover .flow-btn-circle {
+  width: 320px;
+  height: 320px;
+  opacity: 1;
+}
+
+/* ---- Right arrow (exits to the right on hover) ---- */
+.flow-btn-arr--right {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  right: 14px;
+  stroke: #888888;
+  fill: none;
+  z-index: 9;
+  transition:
+    right  800ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    stroke 800ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.flow-button:hover .flow-btn-arr--right,
+.btn-primary.flow-button:hover .flow-btn-arr--right {
+  right: -25%;
+  stroke: #000000;
+}
+
+
+
+/* ==========================================================================
+   VITRINE CARD — Glass surface for job detail panels
+   ========================================================================== */
+.vitrine-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px;
+  padding: 24px;
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  box-shadow:
+    0 4px 24px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 0 -1px 0 rgba(0,0,0,0.2);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.vitrine-card:hover {
+  border-color: rgba(255,255,255,0.11);
+}
+
+/* Vitrine card heading */
+.vitrine-card h3,
+.vitrine-card h4 {
+  color: #e8e8f0;
+  font-family: var(--font-sans, inherit);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ==========================================================================
+   VITRINE TABLE — Styled for dark glass context
+   ========================================================================== */
+.vitrine-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13.5px;
+}
+.vitrine-table th {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #44445a;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  text-align: left;
+  font-family: 'DM Mono', monospace;
+  background: transparent;
+}
+.vitrine-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: #b8b8cc;
+  vertical-align: middle;
+}
+.vitrine-table tr:last-child td { border-bottom: none; }
+.vitrine-table tr:hover td {
+  background: rgba(255,255,255,0.025);
+}
+
+/* ==========================================================================
+   JOB DETAIL — Metadata banner row (top info bar)
+   ========================================================================== */
+.job-meta-banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  padding: 12px 20px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  font-size: 12.5px;
+  color: #666680;
+  margin-bottom: 20px;
+}
+.job-meta-banner strong { color: #c0c0d8; }
+.job-meta-banner .meta-sep {
+  width: 1px;
+  height: 14px;
+  background: rgba(255,255,255,0.10);
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   FILE INPUT — Styled to match glass theme
+   ========================================================================== */
+input[type="file"].form-input,
+.file-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Hide default; show styled label */
+input[type="file"] {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: #888899;
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  width: 100%;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+input[type="file"]::-webkit-file-upload-button {
+  background: rgba(212,169,58,0.14);
+  border: 1px solid rgba(212,169,58,0.30);
+  color: #f0ead8;
+  padding: 5px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  margin-right: 12px;
+  transition: background 0.15s ease;
+}
+input[type="file"]::-webkit-file-upload-button:hover {
+  background: rgba(212,169,58,0.24);
+}
+input[type="file"]::file-selector-button {
+  background: rgba(212,169,58,0.14);
+  border: 1px solid rgba(212,169,58,0.30);
+  color: #f0ead8;
+  padding: 5px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  margin-right: 12px;
+  transition: background 0.15s ease;
+}
+input[type="file"]::file-selector-button:hover {
+  background: rgba(212,169,58,0.24);
+}
+
+/* ==========================================================================
+   RESPONSIVE — Job detail two-column grid
+   ========================================================================== */
+@media (max-width: 860px) {
+  div[style*="grid-template-columns: 1.5fr 1fr"] {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .comparison-container {
+    grid-template-columns: 1fr;
+  }
+  .vitrine-card {
+    padding: 18px;
+  }
+}
+
+/* ==========================================================================
+   TOPBAR — "New Customer" button alignment fix
+   ========================================================================== */
+.topbar-right .btn-primary {
+  height: 36px;
+  padding: 0 16px;
+  font-size: 13px;
+  white-space: nowrap;
+}

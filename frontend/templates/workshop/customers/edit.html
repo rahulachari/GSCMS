@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit {{ customer.name }} — {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 680px; margin: 0 auto;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <a href="{% url 'customer_detail' customer.pk %}" style="font-size:14px; font-weight:600; color:var(--text-black);">&larr; Back to {{ customer.name }}'s Profile</a>
+        <button type="button" onclick="triggerSoftDelete('customer', {{ customer.pk }}, '{% url 'customer_list' %}')" class="btn-delete">
+            &#128465; Move to Recycle Bin
+        </button>
+    </div>
+    
+    <div style="margin-bottom: 24px;">
+        <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">
+            PROFILE EDITOR &bull; <code>{{ customer.customer_id }}</code>
+        </div>
+        <h1 style="font-size: 32px; margin-top:4px;">Edit Customer Details</h1>
+        <p style="font-size:14px; color:var(--text-muted);">Update contact information, address, and atelier preferences</p>
+    </div>
+
+    <div class="pearl-card">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group" style="margin-bottom:16px;">
+                <label style="font-size:13px; font-weight:700; color:var(--text-black); display:block; margin-bottom:6px;">Full Name *</label>
+                <input type="text" name="name" value="{{ customer.name }}" class="form-input" style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14px;" required>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+                <div class="form-group">
+                    <label style="font-size:13px; font-weight:700; color:var(--text-black); display:block; margin-bottom:6px;">Primary Mobile *</label>
+                    <input type="text" name="mobile" value="{{ customer.mobile }}" class="form-input" style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14px;" required>
+                </div>
+                <div class="form-group">
+                    <label style="font-size:13px; font-weight:700; color:var(--text-black); display:block; margin-bottom:6px;">Alternate Mobile</label>
+                    <input type="text" name="alternate_mobile" value="{{ customer.alternate_mobile }}" class="form-input" style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14px;" placeholder="e.g. +91 94400 54321">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:16px;">
+                <label style="font-size:13px; font-weight:700; color:var(--text-black); display:block; margin-bottom:6px;">Email Address</label>
+                <input type="email" name="email" value="{{ customer.email }}" class="form-input" style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14px;" placeholder="customer@example.com">
+            </div>
+
+            <div class="form-group" style="margin-bottom:16px;">
+                <label style="font-size:13px; font-weight:700; color:var(--text-black); display:block; margin-bottom:6px;">Address &amp; Delivery Location</label>
+                <textarea name="address" rows="3" class="form-input" style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14px; font-family:var(--font-sans);">{{ customer.address }}</textarea>
+            </div>
+
+            <div class="form-group" style="margin-bottom:24px;">
+                <label style="font-size:13px; font-weight:700; color:var(--text-black); display:block; margin-bottom:6px;">Customer Notes / Preferences</label>
+                <textarea name="notes" rows="3" class="form-input" style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14px; font-family:var(--font-sans);" placeholder="e.g. VIP client, preferred purity, ring sizes...">{{ customer.notes }}</textarea>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--pearl-border); padding-top:20px;">
+                <a href="{% url 'customer_detail' customer.pk %}" class="btn-ghost">Cancel</a>
+                <div style="display:flex; gap:10px;">
+                    <button type="submit" class="btn-primary" style="padding:10px 24px;">Save Changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

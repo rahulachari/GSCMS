@@ -1,0 +1,412 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Jewellery Bill &amp; QR Certificate — {{ customer.name }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --gold: #b8892a;
+            --gold-light: #d4a93a;
+            --text-primary: #0d0d12;
+            --text-secondary: #444455;
+            --text-muted: #888899;
+            --border: #e0dedd;
+            --bg-page: #f4f1ec;
+            --bg-card: #ffffff;
+            --bg-subtle: #faf8f5;
+            --green: #15803d;
+            --green-bg: #dcfce7;
+            --blue: #1d4ed8;
+            --blue-bg: #dbeafe;
+            --amber: #92400e;
+            --amber-bg: #fef3c7;
+            --ash: #374151;
+            --ash-bg: #f3f4f6;
+        }
+
+        body {
+            background: var(--bg-page);
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 32px 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Action Bar ── */
+        .action-bar {
+            max-width: 880px;
+            margin: 0 auto 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 8px 18px;
+            border-radius: 100px;
+            border: 1.5px solid var(--border);
+            background: var(--bg-card);
+            transition: all 0.18s ease;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .back-link:hover {
+            background: #f0ede8;
+            color: var(--text-primary);
+            border-color: #c8c5c0;
+            transform: translateX(-2px);
+        }
+        .btn-print {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            height: 40px;
+            padding: 0 22px;
+            border-radius: 100px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13.5px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+            background: linear-gradient(135deg, #b8892a 0%, #d4a93a 50%, #c9962d 100%);
+            color: #fff;
+            box-shadow: 0 2px 12px rgba(184,137,42,0.4), 0 1px 3px rgba(0,0,0,0.15);
+        }
+        .btn-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(184,137,42,0.5), 0 2px 6px rgba(0,0,0,0.12);
+        }
+        .btn-print:active { transform: scale(0.97); }
+
+        /* ── Bill Sheet ── */
+        .bill-sheet {
+            max-width: 880px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .gold-rule { height: 3px; background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 45%, transparent 100%); }
+
+        /* ── Header ── */
+        .bill-header {
+            padding: 32px 40px 26px;
+            border-bottom: 1.5px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        .atelier-label { font-size: 10.5px; font-weight: 800; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 5px; }
+        .shop-name { font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 800; color: var(--text-primary); line-height: 1.15; }
+        .shop-meta { font-size: 13px; color: var(--text-muted); margin-top: 5px; line-height: 1.6; }
+        .shop-meta strong { color: var(--text-secondary); }
+
+        .bill-header-right { text-align: right; flex-shrink: 0; }
+        .badge-official {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 12px; border-radius: 100px;
+            font-size: 10px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase;
+            background: var(--green-bg); color: var(--green);
+            border: 1px solid rgba(21,128,61,0.2); margin-bottom: 8px;
+        }
+        .bill-num { font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 700; color: var(--text-primary); }
+        .bill-date { font-size: 12.5px; color: var(--text-muted); margin-top: 3px; }
+        .bill-date strong { color: var(--text-secondary); }
+
+        /* ── Customer Grid ── */
+        .customer-grid { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1.5px solid var(--border); }
+        .customer-cell { padding: 20px 40px; }
+        .customer-cell:first-child { border-right: 1px solid var(--border); }
+        .cell-label { font-size: 10px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px; }
+        .customer-name { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; color: var(--text-primary); }
+        .customer-phone { font-size: 13.5px; color: var(--text-secondary); margin-top: 2px; }
+        .ref-code { font-family: 'DM Mono', monospace; font-size: 11.5px; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 5px; padding: 2px 7px; color: var(--gold); font-weight: 700; }
+
+        /* ── Items Section ── */
+        .items-section { padding: 28px 40px; border-bottom: 1.5px solid var(--border); }
+        .section-title {
+            font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
+            color: var(--text-primary); margin-bottom: 14px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        .bill-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        .bill-table thead th {
+            padding: 10px 14px; text-align: left;
+            font-size: 10.5px; font-weight: 800; color: var(--text-muted);
+            letter-spacing: 0.06em; text-transform: uppercase;
+            background: var(--bg-subtle); border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+        .bill-table thead th:last-child { text-align: right; }
+        .bill-table tbody tr { border-bottom: 1px solid var(--border); }
+        .bill-table tbody tr:last-child { border-bottom: none; }
+        .bill-table tbody td { padding: 14px; vertical-align: middle; }
+        .bill-table tbody td:last-child { text-align: right; }
+
+        .job-title { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+        .job-meta { font-size: 11.5px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .job-id { font-family: 'DM Mono', monospace; font-size: 11px; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; color: var(--gold); font-weight: 600; }
+        .job-note { font-size: 12px; color: var(--text-secondary); margin-top: 3px; font-style: italic; }
+
+        /* Chips */
+        .chip { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 800; letter-spacing: 0.03em; white-space: nowrap; }
+        .chip-gold { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(146,64,14,0.2); }
+        .chip-green { background: var(--green-bg); color: var(--green); border: 1px solid rgba(21,128,61,0.2); }
+        .chip-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(29,78,216,0.2); }
+        .chip-ash { background: var(--ash-bg); color: var(--ash); border: 1px solid rgba(55,65,81,0.2); }
+
+        /* Weight */
+        .w-est { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+        .w-final { font-size: 12px; color: var(--green); font-weight: 700; margin-top: 2px; }
+
+        /* Photos */
+        .photo-cell { display: flex; gap: 8px; align-items: center; }
+        .photo-wrap { text-align: center; }
+        .photo-img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; display: block; }
+        .photo-img.ref { border: 1.5px solid var(--border); }
+        .photo-img.final { border: 2px solid var(--green); }
+        .photo-lbl { font-size: 9.5px; font-weight: 700; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .photo-lbl.ref { color: var(--text-muted); }
+        .photo-lbl.final { color: var(--green); }
+
+        /* ── Footer ── */
+        .bill-footer { padding: 24px 40px 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center; }
+        .qr-block { display: flex; align-items: center; gap: 16px; }
+        .qr-img-el { width: 88px; height: 88px; border-radius: 10px; border: 1.5px solid var(--border); flex-shrink: 0; }
+        .qr-placeholder { width: 88px; height: 88px; border-radius: 10px; background: var(--bg-subtle); border: 1.5px solid var(--border); display: grid; place-items: center; font-size: 9.5px; font-weight: 700; color: var(--text-muted); text-align: center; letter-spacing: 0.05em; text-transform: uppercase; flex-shrink: 0; }
+        .qr-title { font-weight: 700; font-size: 13px; color: var(--text-primary); margin-bottom: 3px; }
+        .qr-desc { font-size: 11.5px; color: var(--text-muted); line-height: 1.5; }
+        .sig-block { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
+        .sig-line { width: 180px; border-top: 1.5px solid #333; padding-top: 5px; margin-top: 44px; text-align: center; }
+        .sig-name { font-size: 12.5px; font-weight: 700; color: var(--text-primary); }
+        .sig-sub { font-size: 10.5px; color: var(--text-muted); margin-top: 1px; }
+
+        /* ── Print ── */
+        @media print {
+            body { background: #fff; padding: 0; }
+            .bill-sheet { border: none; box-shadow: none; border-radius: 0; max-width: 100%; }
+            .no-print { display: none !important; }
+        }
+        @media (max-width: 640px) {
+            body { padding: 12px 10px; }
+            .action-bar { flex-wrap: wrap; gap: 8px; }
+            .action-bar > * { max-width: 100%; }
+            .back-link { min-width: 0; max-width: 100%; white-space: normal; }
+            .bill-header, .customer-cell, .items-section, .bill-footer { padding-left: 20px; padding-right: 20px; }
+            .bill-header { flex-direction: column; }
+            .bill-header-right { flex-shrink: 1; text-align: left; }
+            .shop-name { font-size: clamp(21px, 7vw, 26px); overflow-wrap: anywhere; }
+            .customer-grid { grid-template-columns: 1fr; }
+            .customer-cell:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+            .bill-footer { grid-template-columns: 1fr; }
+            .bill-table.mobile-card-table { display: block; width: 100%; }
+            .bill-table.mobile-card-table thead { display: none; }
+            .bill-table.mobile-card-table tbody,
+            .bill-table.mobile-card-table tbody tr,
+            .bill-table.mobile-card-table tbody td { display: block; width: 100%; }
+            .bill-table.mobile-card-table tbody tr { margin: 0 0 12px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 12px; background: #fff; }
+            .bill-table.mobile-card-table tbody td,
+            .bill-table.mobile-card-table tbody td:last-child {
+                display: grid; grid-template-columns: minmax(85px, 34%) minmax(0, 1fr); gap: 8px;
+                align-items: start; padding: 9px 0; text-align: left; border-bottom: 1px solid var(--border);
+                overflow-wrap: anywhere; white-space: normal;
+            }
+            .bill-table.mobile-card-table tbody td:last-child { border-bottom: 0; }
+            .bill-table.mobile-card-table tbody td::before { content: attr(data-label); font-size: 9px; font-weight: 800; color: var(--text-muted); letter-spacing: .04em; text-transform: uppercase; }
+            .bill-table.mobile-card-table tbody td[colspan] { display: block; }
+            .bill-table.mobile-card-table tbody td[colspan]::before { content: none; }
+            .photo-cell { flex-wrap: wrap; }
+            .qr-block { align-items: flex-start; gap: 12px; }
+            .qr-img-el { width: 72px; height: 72px; }
+            .sig-block { align-items: flex-start; text-align: left; }
+            .sig-line { width: min(180px, 100%); margin-top: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Action Bar -->
+<div class="action-bar no-print">
+    <a href="{% url 'customer_detail' customer.pk %}" class="back-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to {{ customer.name }} Profile
+    </a>
+    <button type="button" onclick="window.print()" class="btn-print">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print Customer Bill
+    </button>
+</div>
+
+<!-- Bill Sheet -->
+<div class="bill-sheet">
+    <div class="gold-rule"></div>
+
+    <!-- Atelier Header -->
+    <div class="bill-header">
+        <div>
+            <div class="atelier-label">Fine Jewellery Atelier &amp; Workshop</div>
+            <div class="shop-name">{{ settings.name|default:"GSCMS Fine Jewellery Workshop" }}</div>
+            <div class="shop-meta">
+                {{ settings.address|default:"Luxury Goldsmiths &amp; Artisan Workshop &bull; Chittoor" }}<br>
+                Phone: <strong>{{ settings.phone|default:"+91 90304 38973" }}</strong>
+                &nbsp;&bull;&nbsp; GSTIN: {{ settings.gstin|default:"33AAAAA0000A1Z5" }}
+            </div>
+        </div>
+        <div class="bill-header-right">
+            <div class="badge-official">&#10003; Official Workshop Bill</div>
+            <div class="bill-num">BILL-{{ customer.customer_id }}</div>
+            <div class="bill-date">Date: <strong>{{ today|date:"d M Y" }}</strong></div>
+        </div>
+    </div>
+
+    <!-- Customer Info -->
+    <div class="customer-grid">
+        <div class="customer-cell">
+            <div class="cell-label">Patron / Customer</div>
+            <div class="customer-name">{{ customer.name }}</div>
+            <div class="customer-phone">Phone: <strong>{{ customer.mobile }}</strong></div>
+            {% if customer.alternate_mobile %}
+                <div style="font-size:12.5px; color:var(--text-muted); margin-top:1px;">Alt: {{ customer.alternate_mobile }}</div>
+            {% endif %}
+        </div>
+        <div class="customer-cell">
+            <div class="cell-label">Delivery / Address</div>
+            <div style="font-size:13.5px; color:var(--text-secondary); margin-top:2px; line-height:1.5;">
+                {{ customer.address|default:"In-Store Delivery Counter Collection" }}
+            </div>
+            <div style="margin-top:6px; font-size:12.5px; color:var(--text-muted);">
+                Customer Ref: <span class="ref-code">{{ customer.customer_id }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Table -->
+    <div class="items-section">
+        <div class="section-title">Jewellery Pieces &amp; Work Specifications</div>
+        <table class="bill-table">
+            <thead>
+                <tr>
+                    <th>Item Description</th>
+                    <th>Purity</th>
+                    <th>Weight</th>
+                    <th>Reference / Final Photo</th>
+                    <th>Workshop Stage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for j in jobs %}
+                <tr>
+                    <td>
+                        <div class="job-title">{{ j.title }}</div>
+                        <div class="job-meta">
+                            <span class="job-id">{{ j.job_id }}</span>
+                            <span>Type: {{ j.get_jewellery_type_display }}</span>
+                        </div>
+                        {% if j.special_instructions %}
+                            <div class="job-note">Note: {{ j.special_instructions }}</div>
+                        {% endif %}
+                    </td>
+                    <td><span class="chip chip-gold">{{ j.gold_purity }}</span></td>
+                    <td>
+                        <div class="w-est">Est: <strong>{{ j.expected_weight }}g</strong></div>
+                        {% if j.final_gross_weight %}
+                            <div class="w-final">Final: {{ j.final_gross_weight }}g</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="photo-cell">
+                            {% if j.reference_photo %}
+                                <div class="photo-wrap">
+                                    <img src="{{ j.reference_photo }}" class="photo-img ref" alt="Reference Photo">
+                                    <div class="photo-lbl ref">Reference</div>
+                                </div>
+                            {% endif %}
+                            {% if j.final_photo %}
+                                <div class="photo-wrap">
+                                    <img src="{{ j.final_photo }}" class="photo-img final" alt="Finished Piece">
+                                    <div class="photo-lbl final">Finished</div>
+                                </div>
+                            {% endif %}
+                            {% if not j.reference_photo and not j.final_photo %}
+                                <span style="font-size:12px; color:var(--text-muted);">—</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        {% if j.atelier_stage == 'COMPLETED' or j.overall_status == 'READY' %}
+                            <span class="chip chip-green">Completed &amp; Ready</span>
+                        {% elif j.atelier_stage == 'AT_POLISHER' %}
+                            <span class="chip chip-gold">At Polisher</span>
+                        {% elif j.atelier_stage == 'AT_STONE' %}
+                            <span class="chip chip-blue">At Stone Fitter</span>
+                        {% else %}
+                            <span class="chip chip-ash">Intake / Received</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:40px 14px; color:var(--text-muted); font-size:13px;">
+                        No jewellery jobs recorded under this patron.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- QR & Signature Footer -->
+    <div class="bill-footer">
+        <div class="qr-block">
+            <img src="{{ customer_bill_qr }}" class="qr-img-el" alt="Scan to open the complete customer bill">
+            <div>
+                <div class="qr-title">Official Digital Customer Bill</div>
+                <div class="qr-desc">Scan with a smartphone camera to open this complete bill as a PDF, including every jewellery item, weight, and stage.</div>
+                <a href="{% url 'customer_qr_bill_pdf' customer.pk %}" target="_blank" rel="noopener" class="bill-pdf-link">Open PDF bill</a>
+            </div>
+        </div>
+        <div class="sig-block">
+            <div class="sig-line">
+                <div class="sig-name">Authorized Goldsmith Signatory</div>
+                <div class="sig-sub">{{ settings.name|default:"GSCMS Fine Workshop" }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.bill-table').forEach(function (table) {
+    const headers = Array.from(table.querySelectorAll('thead th')).map(function (cell) {
+        return (cell.innerText || cell.textContent || '').replace(/\s+/g, ' ').trim();
+    });
+    table.classList.add('mobile-card-table');
+    table.querySelectorAll('tbody tr').forEach(function (row) {
+        Array.from(row.cells).forEach(function (cell, index) {
+            if (headers[index]) cell.setAttribute('data-label', headers[index]);
+        });
+    });
+});
+</script>
+
+</body>
+</html>

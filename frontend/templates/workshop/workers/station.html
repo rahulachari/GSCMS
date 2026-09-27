@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Karigar Touch Station — {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:var(--spacing-28);">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+        <div>
+            <div class="hero-subtitle">Artisan Bench Interface</div>
+            <h1 style="font-size:32px;">Karigar Touch Station</h1>
+        </div>
+
+        <!-- Karigar Switcher -->
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:13px; color:var(--color-slate);">Active Karigar:</span>
+            <select onchange="window.location.href='/station/' + this.value + '/'" class="form-select" style="max-width:240px; font-weight:600;">
+                {% for w in workers %}
+                    <option value="{{ w.worker_id }}" {% if selected_worker.worker_id == w.worker_id %}selected{% endif %}>
+                        {{ w.name }} ({{ w.get_specialization_display }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
+
+{% if selected_worker %}
+<!-- Karigar Bench Status Banner -->
+<div class="vitrine-card" style="margin-bottom:var(--spacing-28); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; background:#fafafc;">
+    <div>
+        <h2 style="font-size:22px;">{{ selected_worker.name }}</h2>
+        <div style="font-size:14px; color:var(--color-graphite); margin-top:2px;">
+            Specialization: <strong>{{ selected_worker.get_specialization_display }}</strong> &bull; Worker ID: <code>{{ selected_worker.worker_id }}</code>
+        </div>
+    </div>
+    <div style="display:flex; gap:16px;">
+        <div style="text-align:right;">
+            <div style="font-size:12px; color:var(--color-slate);">Active on Bench</div>
+            <strong style="font-size:20px; color:var(--color-electric-blue);">{{ assigned_jobs.count }} jobs</strong>
+        </div>
+        <div style="text-align:right;">
+            <div style="font-size:12px; color:var(--color-slate);">Completed Today</div>
+            <strong style="font-size:20px; color:var(--status-green);">{{ selected_worker.completed_today_count }}</strong>
+        </div>
+    </div>
+</div>
+
+<!-- Assigned Jobs Cards for Karigar -->
+<div style="display:flex; flex-direction:column; gap:20px;">
+    {% for job in assigned_jobs %}
+    <div class="vitrine-card" style="{% if job.is_delayed %}border-color:rgba(255,59,48,0.4); background:#fffaf9;{% endif %}">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="badge-chip badge-ash" style="font-size:13px; font-weight:700;">{{ job.job_id }}</span>
+                    <span class="badge-chip badge-blue">{{ job.get_current_stage_display }}</span>
+                    {% if job.is_delayed %}
+                        <span class="badge-chip badge-red">DELAYED BY {{ job.delay_duration }}</span>
+                    {% endif %}
+                </div>
+                <h3 style="font-size:22px; margin-top:6px;">{{ job.title }}</h3>
+                <div style="font-size:13px; color:var(--color-graphite); margin-top:2px;">
+                    Client: <strong>{{ job.order.customer.name }}</strong> &bull; Purity: <strong>{{ job.gold_purity }}</strong> &bull; Target Wt: <strong>{{ job.expected_weight }}g</strong>
+                </div>
+            </div>
+
+            <div style="text-align:right;">
+                <div style="font-size:12px; color:var(--color-slate);">Due Target</div>
+                <strong style="font-size:15px; color:{% if job.is_delayed %}var(--status-red){% else %}var(--color-apple-ink){% endif %};">
+                    {{ job.target_date|date:"h:i A, d M"|default:"Today" }}
+                </strong>
+            </div>
+        </div>
+
+        <!-- Reference Design vs Special Instructions Row -->
+        <div style="display:grid; grid-template-columns: 140px 1fr; gap:20px; align-items:center; background:white; padding:16px; border-radius:18px; border:1px solid var(--color-border); margin-bottom:18px;">
+            <div>
+                {% if job.reference_photo %}
+                    <img src="{{ job.reference_photo }}" style="width:130px; height:130px; border-radius:14px; object-fit:cover; border:1px solid var(--color-border);" alt="Reference Design">
+                {% else %}
+                    <div style="width:130px; height:130px; border-radius:14px; background:#f0f0f4; display:flex; align-items:center; justify-content:center; font-size:11px; color:#86868b; text-align:center; padding:10px;">
+                        No reference image
+                    </div>
+                {% endif %}
+            </div>
+
+            <div>
+                <div style="font-size:13px; font-weight:600; color:var(--color-graphite); margin-bottom:4px;">CRAFTING INSTRUCTIONS</div>
+                <p style="font-size:15px; color:var(--color-apple-ink); line-height:1.4;">
+                    {{ job.special_instructions|default:job.order.customer_instructions|default:"Proceed according to master goldsmith standards." }}
+                </p>
+                <div style="margin-top:10px; font-size:12px; color:var(--color-slate);">
+                    Gold Issued to bench: <strong>{{ job.gold_issued_total }}g</strong> &bull; Location: <strong>{{ job.get_current_location_display }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Big Touch Control Buttons for Karigar Hand & Tablet -->
+        <div class="karigar-action-buttons">
+            <button type="button" class="btn-station btn-station-start" data-stage-action="start" data-job-id="{{ job.job_id }}">
+                <span style="font-size:20px;">▶</span>
+                <span>START WORK</span>
+            </button>
+
+            <button type="button" class="btn-station btn-station-pause" data-stage-action="pause" data-job-id="{{ job.job_id }}">
+                <span style="font-size:20px;">⏸</span>
+                <span>PAUSE</span>
+            </button>
+
+            <button type="button" class="btn-station" style="background:#edf5ff; color:#0071e3; border:1px solid #0071e3;" data-stage-action="resume" data-job-id="{{ job.job_id }}">
+                <span style="font-size:20px;">⏯</span>
+                <span>RESUME</span>
+            </button>
+
+            <button type="button" class="btn-station btn-station-complete" data-stage-action="complete" data-job-id="{{ job.job_id }}" data-confirm="Advance this piece to next stage?">
+                <span style="font-size:20px;">✓</span>
+                <span>COMPLETE STAGE</span>
+            </button>
+
+            <a href="{% url 'job_detail' job.job_id %}#photoUploadCard" class="btn-station" style="background:#f5f5f7; color:#1d1d1f; border:1px solid #d1d1d6; text-decoration:none;">
+                <span style="font-size:20px;">📷</span>
+                <span>UPLOAD PHOTO</span>
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="vitrine-card" style="text-align:center; padding:60px 20px;">
+        <div style="font-size:40px; margin-bottom:12px;">🛠</div>
+        <h3>No active jobs assigned to {{ selected_worker.name }}.</h3>
+        <p style="font-size:14px; color:var(--color-graphite); margin-top:4px;">All pieces on this bench are currently completed or waiting in queue.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

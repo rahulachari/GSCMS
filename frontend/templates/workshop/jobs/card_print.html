@@ -1,0 +1,164 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Job Card — {{ job.job_id }}</title>
+    <link rel="stylesheet" href="{% static 'css/pearl-theme.css' %}">
+    <style>
+        body { background: white; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #000000; }
+        .job-card-box {
+            max-width: 680px; margin: 0 auto; border: 2px solid #000000; border-radius: 16px; padding: 24px;
+        }
+        .job-card-box, .job-card-box * { box-sizing: border-box; }
+        @media (max-width: 640px) {
+            body { padding: 10px; }
+            .no-print { gap: 8px; flex-wrap: wrap; }
+            .no-print button { flex: 1 1 120px; }
+            .job-card-box { width: 100%; padding: 14px; border-radius: 12px; }
+            .job-card-box h2 { font-size: clamp(17px, 5.7vw, 22px) !important; overflow-wrap: anywhere; }
+            .job-card-box div[style*="display: flex"][style*="justify-content: space-between"] { flex-wrap: wrap; gap: 12px !important; }
+            .job-card-box div[style*="display: flex"][style*="justify-content: space-between"] > div { min-width: 0; max-width: 100%; }
+            .job-card-box img, .job-card-box video { max-width: 100%; height: auto; }
+            .job-card-box table.mobile-card-table { display: block; width: 100%; }
+            .job-card-box table.mobile-card-table thead { display: none; }
+            .job-card-box table.mobile-card-table tbody, .job-card-box table.mobile-card-table tbody tr,
+            .job-card-box table.mobile-card-table tbody td { display: block; width: 100%; }
+            .job-card-box table.mobile-card-table tbody tr { padding: 6px 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 10px; }
+            .job-card-box table.mobile-card-table tbody td { display: grid; grid-template-columns: minmax(74px, 36%) minmax(0, 1fr); gap: 8px; padding: 7px 0 !important; text-align: left !important; overflow-wrap: anywhere; }
+            .job-card-box table.mobile-card-table tbody td::before { content: attr(data-label); color: #555; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+        }
+        @media print {
+            .no-print { display: none !important; }
+            body { padding: 0; }
+            .job-card-box { border: 2px solid #000; border-radius: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="max-width: 680px; margin: 0 auto 16px; display: flex; justify-content: space-between; align-items: center;">
+        <button onclick="window.print()" class="btn-primary" style="padding: 8px 20px; font-size: 14px;">Print Job Card</button>
+        <button onclick="window.close()" class="btn-ghost" style="padding: 8px 16px; font-size: 14px;">Close</button>
+    </div>
+
+    <div class="job-card-box">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000000; padding-bottom: 16px; margin-bottom: 16px;">
+            <div>
+                <h2 style="font-size: 22px; font-weight: 800; margin: 0; color:#000;">{{ workshop_settings.name }} WORKSHOP</h2>
+                <div style="font-size: 12px; color: #444;">Official Goldsmith Atelier Production Job Sheet &bull; Item QR Certificate</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 11px; color: #555;">ORDER NUMBER</div>
+                <div style="font-size: 16px; font-weight: 800;">{{ job.order.order_number }}</div>
+            </div>
+        </div>
+
+        <!-- Main Job Identification Row -->
+        <div style="display: flex; justify-content: space-between; gap: 20px; margin-bottom: 20px;">
+            <div style="flex: 1;">
+                <div style="font-size: 11px; color: #555; text-transform: uppercase;">JOB CARD IDENTIFIER</div>
+                <div style="font-size: 24px; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 6px;">{{ job.job_id }}</div>
+                <div style="font-size: 16px; font-weight: 700;">{{ job.title }} ({{ job.get_jewellery_type_display }})</div>
+                <div style="font-size: 13.5px; color: #111; margin-top: 6px;">
+                    Customer: <strong>{{ job.order.customer.name }}</strong> &bull; Phone: <strong>{{ job.order.customer.mobile }}</strong>
+                </div>
+                <div style="margin-top: 8px; font-size: 13px;">
+                    Purity: <strong>{{ job.gold_purity }}</strong> &bull; Target Wt: <strong>{{ job.expected_weight }}g</strong> &bull; Final: <strong>{{ job.final_gross_weight|default:"In-progress" }}g</strong>
+                </div>
+                <div style="margin-top: 6px; font-size: 13px; color: #222;">
+                    <strong>Item Given Date:</strong> {{ job.order.created_at|date:"d M Y, h:i A" }}<br>
+                    <strong>Delivery Target:</strong> <strong>{{ job.target_date|date:"d M Y, h:i A"|default:"TBD" }}</strong>
+                </div>
+            </div>
+
+            <!-- Scannable QR -->
+            <div style="text-align: center; width: 140px;">
+                {% if job.qr_code_image %}
+                    <img src="{{ job.qr_code_image.url }}" alt="QR Code" style="width: 120px; height: 120px; display: block; margin: 0 auto 4px;">
+                {% endif %}
+                <span style="font-size: 10px; font-weight: 700; color: #222;">Scan Item Dossier</span>
+            </div>
+        </div>
+
+        <!-- Reference Visual Thumbnail if present -->
+        {% if job.reference_photo %}
+        <div style="border: 1px solid #ddd; border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 16px; margin-bottom: 16px; background: #fafafa;">
+            <img src="{{ job.reference_photo }}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px;" alt="Reference">
+            <div style="font-size: 12px; color: #333;">
+                <strong>Reference Design Attached</strong><br>
+                Customer approved design specifications. Maintain exact motif proportions.
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Instructions -->
+        <div style="border: 1px solid #ddd; border-radius: 8px; padding: 12px; font-size: 13px; margin-bottom: 16px;">
+            <strong>Special Instructions:</strong><br>
+            {{ job.special_instructions|default:job.order.customer_instructions|default:"Craft according to standard workshop quality tolerances." }}
+        </div>
+
+        <!-- Sign-off Matrix -->
+        <table style="width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; margin-top: 16px;">
+            <thead>
+                <tr style="background: #f0f0f0;">
+                    <th style="border: 1px solid #999; padding: 6px;">Stage</th>
+                    <th style="border: 1px solid #999; padding: 6px;">Karigar</th>
+                    <th style="border: 1px solid #999; padding: 6px;">Weight Recv</th>
+                    <th style="border: 1px solid #999; padding: 6px;">Weight Retd</th>
+                    <th style="border: 1px solid #999; padding: 6px;">Sign</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="border: 1px solid #999; padding: 8px;">1. Melting / Making</td>
+                    <td style="border: 1px solid #999;"></td>
+                    <td style="border: 1px solid #999;"></td>
+                    <td style="border: 1px solid #999;"></td>
+                    <td style="border: 1px solid #999;"></td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #999; padding: 8px;">2. Stone Setting</td>
+                    <td style="border: 1px solid #999;"></td>
+                    <td style="border: 1px solid #999;"></td>
+                    <td style="border: 1px solid #999;"></td>
+                    <td style="border: 1px solid #999;"></td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #999; padding: 8px;">3. Polishing &amp; Lapping</td>
+                    <td style="border: 1px solid #999;"></td>
+                    <td style="border: 1px solid #999;"></td>
+                    <td style="border: 1px solid #999;"></td>
+                    <td style="border: 1px solid #999;"></td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #999; padding: 8px;">4. QC &amp; Final Weight</td>
+                    <td style="border: 1px solid #999;"></td>
+                    <td style="border: 1px solid #999;"></td>
+                    <td style="border: 1px solid #999;"></td>
+                    <td style="border: 1px solid #999;"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 24px; font-size: 11px; color: #666;">
+            <div>Issued by: Workshop Manager</div>
+            <div>Date Printed: {% now "d/m/Y H:i" %}</div>
+            <div>Security Job ID: {{ job.job_id }}</div>
+        </div>
+    </div>
+    <script>
+    document.querySelectorAll('.job-card-box table').forEach(function (table) {
+        const headers = Array.from(table.querySelectorAll('thead th')).map(function (cell) {
+            return (cell.innerText || cell.textContent || '').replace(/\s+/g, ' ').trim();
+        });
+        table.classList.add('mobile-card-table');
+        table.querySelectorAll('tbody tr').forEach(function (row) {
+            Array.from(row.cells).forEach(function (cell, index) {
+                if (headers[index]) cell.setAttribute('data-label', headers[index]);
+            });
+        });
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Stone &amp; Gemstone Inventory — {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--spacing-28); flex-wrap:wrap; gap:16px;">
+    <div>
+        <div class="hero-subtitle">Precious Gem Vault</div>
+        <h1 style="font-size:32px;">Diamonds &amp; Gemstones Inventory</h1>
+    </div>
+    <div style="display:flex; gap:12px;">
+        <button type="button" class="btn-primary" onclick="openModal('issueStoneModal')">
+            + Issue Stones to Karigar
+        </button>
+    </div>
+</div>
+
+<!-- Stones Table -->
+<div class="vitrine-card" style="padding:0; overflow:hidden; margin-bottom:var(--spacing-32);">
+    <table class="vitrine-table">
+        <thead>
+            <tr>
+                <th>Stone Code</th>
+                <th>Type</th>
+                <th>Shape &amp; Cut</th>
+                <th>Size / Carat</th>
+                <th>Grade / Clarity</th>
+                <th>Total Stock</th>
+                <th>Available</th>
+                <th>Carats Wt</th>
+                <th>Vault Location</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for st in stones %}
+            <tr>
+                <td><code>{{ st.stone_code }}</code></td>
+                <td><strong>{{ st.get_stone_type_display }}</strong></td>
+                <td>{{ st.get_shape_display }}</td>
+                <td>{{ st.size_mm|default:"-" }}</td>
+                <td><span class="badge-chip badge-ash">{{ st.grade|default:"Standard" }}</span></td>
+                <td>{{ st.total_quantity }} pcs</td>
+                <td>
+                    <strong style="color:{% if st.available_quantity < 10 %}var(--status-red){% else %}var(--status-green){% endif %}; font-size:15px;">
+                        {{ st.available_quantity }} pcs
+                    </strong>
+                </td>
+                <td>{{ st.weight_carats }} ct</td>
+                <td>{{ st.location }}</td>
+                <td>
+                    <button type="button" class="btn-ghost" style="padding:4px 12px; font-size:12px;" onclick="prefillStoneIssue('{{ st.pk }}', '{{ st.stone_code }}')">
+                        Issue &rarr;
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="10" style="text-align:center; padding:40px; color:var(--color-slate);">
+                    No gemstone stocks recorded.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Recent Stone Issue/Return Transactions -->
+<div class="vitrine-card">
+    <h3 style="font-size:19px; margin-bottom:16px;">Recent Gemstone Bench Allocations</h3>
+    <table class="vitrine-table" style="font-size:13px;">
+        <thead>
+            <tr>
+                <th>Date / Time</th>
+                <th>Stone Code</th>
+                <th>Job Piece</th>
+                <th>Karigar</th>
+                <th>Transaction</th>
+                <th>Qty</th>
+                <th>Carats</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in transactions %}
+            <tr>
+                <td>{{ t.created_at|date:"d M Y, h:i A" }}</td>
+                <td><strong>{{ t.stone.stone_code }}</strong></td>
+                <td>
+                    {% if t.job %}
+                        <a href="{% url 'job_detail' t.job.job_id %}">{{ t.job.job_id }}</a>
+                    {% else %}-{% endif %}
+                </td>
+                <td>{{ t.worker.name|default:"-" }}</td>
+                <td><span class="badge-chip badge-blue">{{ t.get_transaction_type_display }}</span></td>
+                <td><strong>{{ t.quantity }} pcs</strong></td>
+                <td>{{ t.weight_carats }} ct</td>
+                <td>{{ t.notes|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" style="text-align:center; padding:20px; color:var(--color-slate);">
+                    No gemstone allocations logged.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- ISSUE STONE MODAL -->
+<div id="issueStoneModal" class="modal-backdrop">
+    <div class="search-modal" style="padding:28px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="font-size:20px;">Issue Stones to Karigar</h3>
+            <button type="button" onclick="closeModal('issueStoneModal')" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="issue_stone" value="1">
+
+            <div class="form-group">
+                <label class="form-label">Select Gemstone / Diamond Lot *</label>
+                <select name="stone_id" id="modal_stone_id" class="form-select" required>
+                    {% for st in stones %}
+                        <option value="{{ st.pk }}">{{ st.stone_code }} &bull; {{ st.get_stone_type_display }} (Avail: {{ st.available_quantity }} pcs)</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Job Piece (Job ID) *</label>
+                <select name="job_id" class="form-select" required>
+                    {% for j in jobs %}
+                        <option value="{{ j.job_id }}">{{ j.job_id }} &bull; {{ j.title }} ({{ j.order.customer.name }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Artisan / Karigar Setting Stones *</label>
+                <select name="worker_id" class="form-select" required>
+                    {% for w in workers %}
+                        <option value="{{ w.pk }}">{{ w.name }} ({{ w.get_specialization_display }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                <div class="form-group">
+                    <label class="form-label">Quantity (Pieces) *</label>
+                    <input type="number" name="quantity" value="1" min="1" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Carats Weight (Optional)</label>
+                    <input type="number" step="0.001" name="weight_carats" class="form-input" placeholder="0.000">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                <input type="text" name="notes" class="form-input" placeholder="e.g. Setting on central bezel and side prongs">
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+                <button type="button" onclick="closeModal('issueStoneModal')" class="btn-ghost">Cancel</button>
+                <button type="submit" class="btn-primary">Record Stone Allocation</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openModal(id) {
+    document.getElementById(id).classList.add('active');
+}
+function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+}
+function prefillStoneIssue(id, code) {
+    document.getElementById('modal_stone_id').value = id;
+    openModal('issueStoneModal');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Daily Workshop Report — {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--spacing-28); flex-wrap:wrap; gap:16px;">
+    <div>
+        <div class="hero-subtitle">Business Intelligence &amp; Archival</div>
+        <h1 style="font-size:32px;">Daily Production &amp; Accounts Report</h1>
+        <p style="font-size:15px; color:var(--color-graphite); margin-top:4px;">Date: <strong>{{ report_date|date:"l, d F Y" }}</strong></p>
+    </div>
+    <div style="display:flex; gap:12px;">
+        <a href="{% url 'export_jobs_excel' %}" class="btn-ghost">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export All Jobs (.XLSX)
+        </a>
+        <a href="{% url 'export_gold_excel' %}" class="btn-primary">
+            Export Gold Ledger (.XLSX)
+        </a>
+    </div>
+</div>
+
+<!-- Daily Summary Metrics -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <span class="kpi-label">Orders Received Today</span>
+        <div class="kpi-value">{{ orders_today.count }}</div>
+        <span class="kpi-footnote">New client orders booked</span>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-label">Pieces Completed Today</span>
+        <div class="kpi-value" style="color:var(--status-green);">{{ completed_today.count }}</div>
+        <span class="kpi-footnote">Passed inspection</span>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-label">Gold Movements Logged</span>
+        <div class="kpi-value">{{ gold_txns_today.count }}</div>
+        <span class="kpi-footnote">Issues, returns, scraps</span>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-label">Revenue Collected Today</span>
+        <div class="kpi-value" style="font-size:24px; color:var(--status-green);">₹{{ total_revenue_today|floatformat:2 }}</div>
+        <span class="kpi-footnote">Advance &amp; final settlements</span>
+    </div>
+</div>
+
+<!-- Tables for Today's Activity -->
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:var(--spacing-24);">
+    <!-- Orders Booked Today -->
+    <div class="vitrine-card">
+        <h3 style="font-size:18px; margin-bottom:14px;">Orders Booked Today</h3>
+        <table class="vitrine-table" style="font-size:13px;">
+            <thead>
+                <tr>
+                    <th>Order No</th>
+                    <th>Customer</th>
+                    <th>Est. Amount</th>
+                    <th>Advance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in orders_today %}
+                <tr>
+                    <td><a href="{% url 'order_detail' o.pk %}"><strong>{{ o.order_number }}</strong></a></td>
+                    <td>{{ o.customer.name }}</td>
+                    <td>₹{{ o.total_estimated_amount|floatformat:0 }}</td>
+                    <td><span style="color:var(--status-green);">₹{{ o.advance_paid|floatformat:0 }}</span></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align:center; padding:20px; color:var(--color-slate);">No new orders booked today.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Gold Transactions Today -->
+    <div class="vitrine-card">
+        <h3 style="font-size:18px; margin-bottom:14px;">Gold Metal Movements Today</h3>
+        <table class="vitrine-table" style="font-size:13px;">
+            <thead>
+                <tr>
+                    <th>Txn ID</th>
+                    <th>Type</th>
+                    <th>Purity</th>
+                    <th>Weight</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in gold_txns_today %}
+                <tr>
+                    <td><code>{{ t.transaction_id }}</code></td>
+                    <td>{{ t.get_transaction_type_display }}</td>
+                    <td>{{ t.purity }}</td>
+                    <td><strong>{{ t.weight_grams }}g</strong></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align:center; padding:20px; color:var(--color-slate);">No gold movements logged today.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

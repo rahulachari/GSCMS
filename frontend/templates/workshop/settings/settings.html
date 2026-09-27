@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Workshop Settings — {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 760px; margin: 0 auto;">
+    <div style="margin-bottom: var(--spacing-28);">
+        <div class="hero-subtitle">Configuration &amp; Workshop Identity</div>
+        <h1 style="font-size:32px;">Workshop Settings</h1>
+        <p style="font-size:15px; color:var(--color-graphite); margin-top:4px;">Customize workshop branding, address, phone numbers, tax details, and gold standards</p>
+    </div>
+
+    <div class="vitrine-card">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label">Workshop / Atelier Name *</label>
+                <input type="text" name="name" value="{{ settings.name }}" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Tagline / Motto</label>
+                <input type="text" name="tagline" value="{{ settings.tagline }}" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Address &amp; Landmark *</label>
+                <textarea name="address" class="form-textarea" rows="2" required>{{ settings.address }}</textarea>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                <div class="form-group">
+                    <label class="form-label">Contact Phone / WhatsApp *</label>
+                    <input type="text" name="phone" value="{{ settings.phone }}" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" name="email" value="{{ settings.email }}" class="form-input">
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:16px;">
+                <div class="form-group">
+                    <label class="form-label">Currency Symbol *</label>
+                    <input type="text" name="currency_symbol" value="{{ settings.currency_symbol }}" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Default Gold Purity</label>
+                    <select name="default_purity" class="form-select">
+                        <option value="22K" {% if settings.default_purity == '22K' %}selected{% endif %}>22K (916 Hallmark)</option>
+                        <option value="24K" {% if settings.default_purity == '24K' %}selected{% endif %}>24K (999)</option>
+                        <option value="18K" {% if settings.default_purity == '18K' %}selected{% endif %}>18K (750)</option>
+                        <option value="14K" {% if settings.default_purity == '14K' %}selected{% endif %}>14K (585)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">GST / Tax Registration</label>
+                    <input type="text" name="gst_number" value="{{ settings.gst_number }}" class="form-input">
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+                <button type="submit" class="btn-primary" style="padding:10px 28px;">Save Settings</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

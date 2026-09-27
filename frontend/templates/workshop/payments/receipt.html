@@ -1,0 +1,128 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Receipt — {{ payment.receipt_number }}</title>
+    <link rel="stylesheet" href="{% static 'css/apple-theme.css' %}">
+    <style>
+        body { background: white; padding: 24px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1d1d1f; }
+        .receipt-card { max-width: 600px; margin: 0 auto; border: 1px solid #e5e5ea; border-radius: 16px; padding: 32px; }
+        .receipt-card, .receipt-card * { box-sizing: border-box; }
+        @media (max-width: 640px) {
+            body { padding: 12px; }
+            .no-print { gap: 8px; flex-wrap: wrap; }
+            .no-print button { flex: 1 1 120px; }
+            .receipt-card { width: 100%; padding: 18px; border-radius: 14px; }
+            .receipt-card > div[style*="justify-content: space-between"] { flex-wrap: wrap; gap: 14px; }
+            .receipt-card > div[style*="justify-content: space-between"] > div { min-width: 0; max-width: 100%; }
+            .receipt-card > div[style*="justify-content: space-between"] > div[style*="text-align: right"] { text-align: left !important; }
+            .receipt-card h2 { font-size: clamp(18px, 6vw, 22px) !important; overflow-wrap: anywhere; }
+            table.mobile-card-table { display: block; width: 100%; }
+            table.mobile-card-table thead { display: none; }
+            table.mobile-card-table tbody, table.mobile-card-table tbody tr, table.mobile-card-table tbody td { display: block; width: 100%; }
+            table.mobile-card-table tbody tr { padding: 8px 12px; border: 1px solid #e5e5ea; border-radius: 12px; }
+            table.mobile-card-table tbody td { display: grid; grid-template-columns: minmax(80px, 36%) minmax(0, 1fr); gap: 8px; padding: 9px 0 !important; text-align: left !important; overflow-wrap: anywhere; border-bottom: 1px solid #eee; }
+            table.mobile-card-table tbody td:last-child { border-bottom: 0; }
+            table.mobile-card-table tbody td::before { content: attr(data-label); color: #777; font-size: 9px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+            .receipt-card img, .receipt-card video { max-width: 100%; height: auto; }
+        }
+        @media print {
+            .no-print { display: none !important; }
+            body { padding: 0; }
+            .receipt-card { border: none; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="max-width: 600px; margin: 0 auto 16px; display: flex; justify-content: space-between;">
+        <button onclick="window.print()" class="btn-primary" style="padding: 8px 20px; font-size: 14px;">Print Receipt</button>
+        <button onclick="window.close()" class="btn-ghost" style="padding: 8px 16px; font-size: 14px;">Close</button>
+    </div>
+
+    <div class="receipt-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1d1d1f; padding-bottom: 20px; margin-bottom: 24px;">
+            <div>
+                <h2 style="font-size: 22px; font-weight: 700; margin: 0;">SRI SWARNA JEWELLERS</h2>
+                <div style="font-size: 12px; color: #666; margin-top: 4px;">Artisan Goldsmiths &bull; Official Payment Voucher</div>
+                <div style="font-size: 11px; color: #888; margin-top: 2px;">GSTIN: 36AAAFS1234D1Z2</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 12px; color: #777;">RECEIPT NO.</div>
+                <div style="font-size: 18px; font-weight: 700;">{{ payment.receipt_number }}</div>
+                <div style="font-size: 12px; color: #555; margin-top: 2px;">Date: {{ payment.date|date:"d M Y" }}</div>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 24px; font-size: 14px;">
+            <div>
+                <div style="font-size: 12px; color: #777;">RECEIVED FROM:</div>
+                <div style="font-size: 16px; font-weight: 600; margin-top: 2px;">{{ payment.customer.name }}</div>
+                <div style="color: #555;">{{ payment.customer.mobile }}</div>
+                {% if payment.customer.address %}<div style="font-size: 12px; color: #777;">{{ payment.customer.address }}</div>{% endif %}
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 12px; color: #777;">ORDER REFERENCE:</div>
+                <div style="font-size: 15px; font-weight: 600; margin-top: 2px;">{{ payment.order.order_number }}</div>
+                <div style="font-size: 13px; color: #555;">{{ payment.get_payment_type_display }}</div>
+            </div>
+        </div>
+
+        <!-- Receipt Table -->
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 14px;">
+            <thead>
+                <tr style="border-bottom: 1px solid #ddd; background: #fafafa;">
+                    <th style="padding: 10px; text-align: left;">Description</th>
+                    <th style="padding: 10px; text-align: center;">Payment Method</th>
+                    <th style="padding: 10px; text-align: right;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 12px 10px;">
+                        Payment for Jewellery Order {{ payment.order.order_number }}<br>
+                        <span style="font-size: 12px; color: #777;">UTR/Ref: {{ payment.transaction_reference|default:"Counter Transaction" }}</span>
+                    </td>
+                    <td style="padding: 12px 10px; text-align: center;">{{ payment.get_payment_method_display }}</td>
+                    <td style="padding: 12px 10px; text-align: right; font-weight: 700; font-size: 16px;">
+                        ₹{{ payment.amount|floatformat:2 }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Summary & Balance -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 16px; border-top: 1px solid #ddd;">
+            <div style="font-size: 12px; color: #666;">
+                <div>Cashier: <strong>{{ payment.received_by.get_full_name|default:payment.received_by.username }}</strong></div>
+                <div style="margin-top: 4px;">Thank you for trusting Sri Swarna Jewellers.</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 13px; color: #777;">Total Order Amount: ₹{{ payment.order.total_estimated_amount|floatformat:2 }}</div>
+                <div style="font-size: 13px; color: #777; margin-top: 2px;">Total Paid to Date: ₹{{ payment.order.advance_paid|floatformat:2 }}</div>
+                <div style="font-size: 15px; font-weight: 700; margin-top: 4px; color: {% if payment.order.balance_amount > 0 %}#d32f2f{% else %}#2e7d32{% endif %};">
+                    Remaining Balance: ₹{{ payment.order.balance_amount|floatformat:2 }}
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; display: flex; justify-content: space-between; font-size: 12px; color: #555;">
+            <div>Customer Signature</div>
+            <div>Authorised Goldsmith Signatory</div>
+        </div>
+    </div>
+    <script>
+    document.querySelectorAll('table').forEach(function (table) {
+        const headers = Array.from(table.querySelectorAll('thead th')).map(function (cell) {
+            return (cell.innerText || cell.textContent || '').replace(/\s+/g, ' ').trim();
+        });
+        table.classList.add('mobile-card-table');
+        table.querySelectorAll('tbody tr').forEach(function (row) {
+            Array.from(row.cells).forEach(function (cell, index) {
+                if (headers[index]) cell.setAttribute('data-label', headers[index]);
+            });
+        });
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Recycle Bin — {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; flex-wrap:wrap; gap:16px;">
+    <div>
+        <div style="font-size:12px; font-weight:700; color:var(--accent-red); text-transform:uppercase; letter-spacing:0.06em; display:flex; align-items:center; gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            RECYCLE BIN (TRASH)
+        </div>
+        <h1 style="font-size:32px; margin-top:4px;">Recycle Bin &amp; Soft Deleted Records</h1>
+        <p style="font-size:14px; color:var(--text-muted); margin-top:4px;">
+            Items deleted are kept here safely. You can restore them anytime to your workshop, or delete them permanently.
+        </p>
+    </div>
+
+    {% if total_count > 0 %}
+    <form method="post" action="{% url 'recycle_bin_empty' %}" onsubmit="return confirm('Are you sure you want to permanently delete ALL items in the Recycle Bin? This action cannot be undone!');">
+        {% csrf_token %}
+        <button type="submit" class="btn-delete" style="padding:10px 22px; font-size:13.5px; border-radius:var(--radius-full); font-weight:700;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            Empty Recycle Bin (Delete All)
+        </button>
+    </form>
+    {% endif %}
+</div>
+
+{% if total_count == 0 %}
+<div class="pearl-card" style="text-align:center; padding:60px 20px;">
+    <div style="width:64px; height:64px; border-radius:50%; background:var(--pearl-bg-subtle); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; color:var(--text-muted); font-size:28px;">
+        &#9851;
+    </div>
+    <h3 style="font-size:20px; margin-bottom:8px;">Recycle Bin is Empty</h3>
+    <p style="font-size:14px; color:var(--text-muted); max-width:420px; margin:0 auto 20px;">
+        No deleted customers, orders, or jobs are currently stored in the recycle bin.
+    </p>
+    <a href="{% url 'dashboard' %}" class="btn-primary">Return to Dashboard</a>
+</div>
+{% else %}
+
+<!-- 1. DELETED CUSTOMERS -->
+<div class="pearl-card" style="margin-bottom:28px; padding:0; overflow:hidden;">
+    <div style="padding:16px 20px; background:var(--pearl-bg-subtle); border-bottom:1px solid var(--pearl-border); display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="font-size:16px; display:flex; align-items:center; gap:8px;">
+            <span>Customers in Recycle Bin</span>
+            <span class="badge-chip badge-red">{{ deleted_customers.count }}</span>
+        </h3>
+    </div>
+
+    {% if deleted_customers %}
+    <table class="pearl-table">
+        <thead>
+            <tr>
+                <th>Customer ID</th>
+                <th>Name</th>
+                <th>Mobile</th>
+                <th>Deleted On</th>
+                <th style="text-align:right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in deleted_customers %}
+            <tr>
+                <td><code>{{ c.customer_id }}</code></td>
+                <td><strong>{{ c.name }}</strong></td>
+                <td>{{ c.mobile }}</td>
+                <td style="font-size:13px; color:var(--text-muted);">{{ c.deleted_at|date:"d M Y, h:i A"|default:"Recently" }}</td>
+                <td style="text-align:right;">
+                    <div style="display:inline-flex; gap:8px;">
+                        <form method="post" action="{% url 'recycle_bin_restore' 'customer' c.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-ghost" style="padding:4px 12px; font-size:12px; color:var(--accent-green) !important;">
+                                &#8634; Restore (Keep)
+                            </button>
+                        </form>
+                        <form method="post" action="{% url 'recycle_bin_delete_permanent' 'customer' c.pk %}" onsubmit="return confirm('Permanently delete {{ c.name }}? This cannot be undone.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-delete" style="padding:4px 10px; font-size:12px;">
+                                &times; Delete Permanently
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="padding:24px; text-align:center; color:var(--text-muted); font-size:13.5px;">No deleted customers.</div>
+    {% endif %}
+</div>
+
+<!-- 2. DELETED ORDERS -->
+<div class="pearl-card" style="margin-bottom:28px; padding:0; overflow:hidden;">
+    <div style="padding:16px 20px; background:var(--pearl-bg-subtle); border-bottom:1px solid var(--pearl-border); display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="font-size:16px; display:flex; align-items:center; gap:8px;">
+            <span>Orders in Recycle Bin</span>
+            <span class="badge-chip badge-red">{{ deleted_orders.count }}</span>
+        </h3>
+    </div>
+
+    {% if deleted_orders %}
+    <table class="pearl-table">
+        <thead>
+            <tr>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th>Type</th>
+                <th>Estimated Total</th>
+                <th>Deleted On</th>
+                <th style="text-align:right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in deleted_orders %}
+            <tr>
+                <td><code>{{ o.order_number }}</code></td>
+                <td><strong>{{ o.customer.name }}</strong></td>
+                <td><span class="badge-chip badge-ash">{{ o.get_order_type_display }}</span></td>
+                <td>₹{{ o.total_estimated_amount|floatformat:2 }}</td>
+                <td style="font-size:13px; color:var(--text-muted);">{{ o.deleted_at|date:"d M Y, h:i A"|default:"Recently" }}</td>
+                <td style="text-align:right;">
+                    <div style="display:inline-flex; gap:8px;">
+                        <form method="post" action="{% url 'recycle_bin_restore' 'order' o.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-ghost" style="padding:4px 12px; font-size:12px; color:var(--accent-green) !important;">
+                                &#8634; Restore (Keep)
+                            </button>
+                        </form>
+                        <form method="post" action="{% url 'recycle_bin_delete_permanent' 'order' o.pk %}" onsubmit="return confirm('Permanently delete order {{ o.order_number }}?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-delete" style="padding:4px 10px; font-size:12px;">
+                                &times; Delete Permanently
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="padding:24px; text-align:center; color:var(--text-muted); font-size:13.5px;">No deleted orders.</div>
+    {% endif %}
+</div>
+
+<!-- 3. DELETED JOBS -->
+<div class="pearl-card" style="padding:0; overflow:hidden;">
+    <div style="padding:16px 20px; background:var(--pearl-bg-subtle); border-bottom:1px solid var(--pearl-border); display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="font-size:16px; display:flex; align-items:center; gap:8px;">
+            <span>Jewellery Jobs in Recycle Bin</span>
+            <span class="badge-chip badge-red">{{ deleted_jobs.count }}</span>
+        </h3>
+    </div>
+
+    {% if deleted_jobs %}
+    <table class="pearl-table">
+        <thead>
+            <tr>
+                <th>Job ID</th>
+                <th>Item Title</th>
+                <th>Customer</th>
+                <th>Purity &amp; Weight</th>
+                <th>Deleted On</th>
+                <th style="text-align:right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for j in deleted_jobs %}
+            <tr>
+                <td><code>{{ j.job_id }}</code></td>
+                <td><strong>{{ j.title }}</strong></td>
+                <td>{{ j.order.customer.name }}</td>
+                <td>{{ j.gold_purity }} &bull; {{ j.expected_weight }}g</td>
+                <td style="font-size:13px; color:var(--text-muted);">{{ j.deleted_at|date:"d M Y, h:i A"|default:"Recently" }}</td>
+                <td style="text-align:right;">
+                    <div style="display:inline-flex; gap:8px;">
+                        <form method="post" action="{% url 'recycle_bin_restore' 'job' j.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-ghost" style="padding:4px 12px; font-size:12px; color:var(--accent-green) !important;">
+                                &#8634; Restore (Keep)
+                            </button>
+                        </form>
+                        <form method="post" action="{% url 'recycle_bin_delete_permanent' 'job' j.pk %}" onsubmit="return confirm('Permanently delete job {{ j.job_id }}?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-delete" style="padding:4px 10px; font-size:12px;">
+                                &times; Delete Permanently
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="padding:24px; text-align:center; color:var(--text-muted); font-size:13.5px;">No deleted jobs.</div>
+    {% endif %}
+</div>
+
+{% endif %}
+{% endblock %}

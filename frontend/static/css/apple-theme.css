@@ -1,0 +1,382 @@
+/* ==========================================================================
+   Apple (España) Design System — Gallery Vitrine in Morning Fog
+   Goldsmith & Fine Jewellery Workshop ERP (GSCMS)
+   ========================================================================== */
+
+:root {
+  /* Colors */
+  --color-apple-ink: #1d1d1f;
+  --color-fog-canvas: #f5f5f7;
+  --color-pure-white: #ffffff;
+  --color-graphite: #707070;
+  --color-slate: #86868b;
+  --color-charcoal: #333336;
+  --color-smoke: #474747;
+  --color-iron: #5b5b61;
+  --color-ash: #e8e8ed;
+  --color-electric-blue: #0071e3;
+  --color-electric-blue-hover: #0077ed;
+  --color-link-blue: #0066cc;
+  --color-border: #e5e5ea;
+  --color-border-subtle: #f0f0f2;
+
+  /* Status Tokens */
+  --status-green: #34c759;
+  --status-green-bg: #eafaf1;
+  --status-blue: #0071e3;
+  --status-blue-bg: #edf5ff;
+  --status-yellow: #ff9500;
+  --status-yellow-bg: #fff8eb;
+  --status-red: #ff3b30;
+  --status-red-bg: #ffefee;
+  --status-orange: #ff9500;
+  --status-purple: #af52de;
+  --status-purple-bg: #f8effc;
+
+  /* Typography Families */
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter Tight", "Segoe UI", Roboto, sans-serif;
+  --font-text: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, sans-serif;
+
+  /* Typography Scale */
+  --text-caption: 12px;
+  --leading-caption: 1.33;
+  --tracking-caption: -0.022em;
+
+  --text-body-sm: 14px;
+  --text-body: 17px;
+  --leading-body: 1.47;
+  --tracking-body: -0.019em;
+
+  --text-subheading: 24px;
+  --text-heading-sm: 28px;
+  --text-heading: 40px;
+  --text-heading-lg: 56px;
+  --text-display: 72px;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* Spacing */
+  --spacing-4: 4px;
+  --spacing-8: 8px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-28: 28px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+  --spacing-64: 64px;
+
+  /* Radii */
+  --radius-cards: 28px;
+  --radius-images: 28px;
+  --radius-buttons: 980px;
+  --radius-tags: 999px;
+  --radius-input: 16px;
+
+  /* Layout */
+  --page-max-width: 1440px;
+}
+
+/* Base Reset & Global Styles */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-text);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
+  color: var(--color-apple-ink);
+  background-color: var(--color-fog-canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-apple-ink);
+  letter-spacing: -0.02em;
+}
+
+h1 { font-size: clamp(32px, 4vw, 56px); line-height: 1.08; }
+h2 { font-size: clamp(24px, 3vw, 36px); line-height: 1.14; }
+h3 { font-size: 24px; line-height: 1.2; }
+h4 { font-size: 19px; line-height: 1.25; }
+
+a {
+  color: var(--color-link-blue);
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+a:hover {
+  opacity: 0.8;
+}
+
+/* Vitrine Layout Container */
+.app-container {
+  width: 100%;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-28);
+}
+
+/* Navigation Bar (Translucent Dark Apple Ink) */
+.global-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 52px;
+  background-color: rgba(29, 29, 31, 0.88);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-inner {
+  width: 100%;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-28);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  color: var(--color-fog-canvas);
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-semibold);
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+.nav-brand svg {
+  fill: #dfb15b;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-24);
+  list-style: none;
+}
+
+.nav-links a {
+  color: #d2d2d7;
+  font-size: 13px;
+  font-weight: var(--font-weight-regular);
+  letter-spacing: -0.01em;
+  transition: color 0.15s ease;
+}
+
+.nav-links a:hover, .nav-links a.active {
+  color: var(--color-pure-white);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-16);
+}
+
+/* Vitrine Cards (Pure White on Fog Canvas, 28px radius, NO shadows) */
+.vitrine-card {
+  background-color: var(--color-pure-white);
+  border-radius: var(--radius-cards);
+  padding: var(--spacing-28);
+  border: 1px solid var(--color-border);
+  position: relative;
+  transition: border-color 0.2s ease;
+}
+
+.vitrine-card:hover {
+  border-color: #d1d1d6;
+}
+
+/* Button System */
+/* Primary Buy/Action Button: Only place Electric Blue appears as fill */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-8);
+  background-color: var(--color-electric-blue);
+  color: var(--color-pure-white);
+  font-family: var(--font-text);
+  font-size: 15px;
+  font-weight: var(--font-weight-regular);
+  padding: 10px 22px;
+  border-radius: var(--radius-buttons);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-electric-blue-hover);
+  color: var(--color-pure-white);
+  opacity: 1;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Ghost Button (Border 1px Apple Ink, Pill) */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-8);
+  background-color: transparent;
+  color: var(--color-apple-ink);
+  font-family: var(--font-text);
+  font-size: 15px;
+  font-weight: var(--font-weight-regular);
+  padding: 9px 20px;
+  border-radius: var(--radius-buttons);
+  border: 1px solid var(--color-apple-ink);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-ghost:hover {
+  background-color: var(--color-apple-ink);
+  color: var(--color-pure-white);
+  opacity: 1;
+}
+
+.btn-ash {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-8);
+  background-color: var(--color-ash);
+  color: var(--color-apple-ink);
+  font-size: 14px;
+  padding: 8px 18px;
+  border-radius: var(--radius-buttons);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.btn-ash:hover {
+  background-color: #dedee3;
+  color: var(--color-apple-ink);
+}
+
+/* Badge Chips */
+.badge-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-tags);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.01em;
+  background-color: var(--color-ash);
+  color: var(--color-apple-ink);
+}
+
+.badge-green { background-color: var(--status-green-bg); color: #1c7430; border: 1px solid rgba(52, 199, 89, 0.2); }
+.badge-blue { background-color: var(--status-blue-bg); color: var(--color-electric-blue); border: 1px solid rgba(0, 113, 227, 0.2); }
+.badge-yellow { background-color: var(--status-yellow-bg); color: #b26a00; border: 1px solid rgba(255, 149, 0, 0.2); }
+.badge-red { background-color: var(--status-red-bg); color: var(--status-red); border: 1px solid rgba(255, 59, 48, 0.2); }
+.badge-purple { background-color: var(--status-purple-bg); color: var(--status-purple); border: 1px solid rgba(175, 82, 222, 0.2); }
+
+/* Form Controls */
+.form-group {
+  margin-bottom: var(--spacing-20);
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-graphite);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: var(--color-pure-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+  font-family: var(--font-text);
+  font-size: 15px;
+  color: var(--color-apple-ink);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--color-electric-blue);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+}
+
+/* Minimalist Clean Tables */
+.vitrine-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.vitrine-table th {
+  padding: 14px 16px;
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-graphite);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.vitrine-table td {
+  padding: 16px;
+  color: var(--color-apple-ink);
+  border-bottom: 1px solid var(--color-border-subtle);
+  vertical-align: middle;
+}
+
+.vitrine-table tr:hover td {
+  background-color: #fafafc;
+}
+
+/* Flash Messages */
+.flash-message {
+  padding: 14px 20px;
+  border-radius: var(--radius-input);
+  margin-bottom: var(--spacing-20);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.flash-success { background-color: var(--status-green-bg); color: #1c7430; border: 1px solid rgba(52, 199, 89, 0.3); }
+.flash-error { background-color: var(--status-red-bg); color: var(--status-red); border: 1px solid rgba(255, 59, 48, 0.3); }
+.flash-info { background-color: var(--status-blue-bg); color: var(--color-electric-blue); border: 1px solid rgba(0, 113, 227, 0.3); }

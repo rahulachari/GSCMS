@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Master Gold Accountability Ledger — {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--spacing-28); flex-wrap:wrap; gap:16px;">
+    <div>
+        <div class="hero-subtitle">Precious Metals Custody</div>
+        <h1 style="font-size:32px;">Master Gold Accountability Ledger</h1>
+    </div>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a href="{% url 'export_gold_excel' %}" class="btn-ash">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px;">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export Ledger (Excel)
+        </a>
+        <button type="button" class="btn-ghost" onclick="openModal('issueGoldModal')">
+            + Issue Gold to Worker
+        </button>
+        <button type="button" class="btn-primary" onclick="openModal('returnGoldModal')">
+            + Record Gold Return
+        </button>
+    </div>
+</div>
+
+<!-- Balance KPI Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <span class="kpi-label">Total Gold Issued</span>
+        <div class="kpi-value" style="color:var(--color-electric-blue);">{{ total_issued|floatformat:3 }}g</div>
+        <span class="kpi-footnote">Granules, wire, plate allocated</span>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-label">Gold Returned (Finished + Scrap + Dust)</span>
+        <div class="kpi-value" style="color:var(--status-green);">{{ total_returned|floatformat:3 }}g</div>
+        <span class="kpi-footnote">Accounted back into custody</span>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-label">Net Gold on Artisan Benches</span>
+        <div class="kpi-value" style="color:var(--status-yellow);">{{ net_in_circulation|floatformat:3 }}g</div>
+        <span class="kpi-footnote">Active WIP in workshop</span>
+    </div>
+</div>
+
+<!-- Ledger Transactions Table -->
+<div class="vitrine-card" style="padding:0; overflow:hidden;">
+    <table class="vitrine-table">
+        <thead>
+            <tr>
+                <th>Txn ID</th>
+                <th>Date / Time</th>
+                <th>Job ID</th>
+                <th>Artisan / Karigar</th>
+                <th>Transaction Type</th>
+                <th>Purity</th>
+                <th>Weight (Grams)</th>
+                <th>Recorded By</th>
+                <th>Notes / Sprue / Scrap details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for txn in transactions %}
+            <tr>
+                <td><code>{{ txn.transaction_id }}</code></td>
+                <td>{{ txn.created_at|date:"d M Y, h:i A" }}</td>
+                <td>
+                    {% if txn.job %}
+                        <a href="{% url 'job_detail' txn.job.job_id %}" style="font-weight:600;">{{ txn.job.job_id }}</a>
+                    {% else %}
+                        <span style="color:var(--color-slate);">-</span>
+                    {% endif %}
+                </td>
+                <td><strong>{{ txn.worker.name|default:"Vault Custody" }}</strong></td>
+                <td>
+                    {% if txn.transaction_type == 'GOLD_ISSUED' %}
+                        <span class="badge-chip badge-blue">Gold Issued</span>
+                    {% elif txn.transaction_type == 'FINISHED_RETURNED' %}
+                        <span class="badge-chip badge-green">Finished Return</span>
+                    {% elif txn.transaction_type == 'SCRAP_RETURNED' %}
+                        <span class="badge-chip badge-yellow">Scrap Return</span>
+                    {% elif txn.transaction_type == 'DUST_RECOVERED' %}
+                        <span class="badge-chip badge-ash">Dust Recovered</span>
+                    {% elif txn.transaction_type == 'MELTING_LOSS' %}
+                        <span class="badge-chip badge-red">Melting Loss</span>
+                    {% else %}
+                        <span class="badge-chip badge-purple">{{ txn.get_transaction_type_display }}</span>
+                    {% endif %}
+                </td>
+                <td><strong>{{ txn.purity }}</strong></td>
+                <td>
+                    <strong style="font-size:15px; {% if txn.transaction_type == 'GOLD_ISSUED' %}color:var(--color-electric-blue);{% else %}color:var(--status-green);{% endif %}">
+                        {{ txn.weight_grams }}g
+                    </strong>
+                </td>
+                <td>{{ txn.created_by.username|default:"Admin" }}</td>
+                <td style="font-size:13px; color:var(--color-graphite); max-width:260px;">{{ txn.notes|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" style="text-align:center; padding:40px; color:var(--color-slate);">
+                    No gold transactions logged in the immutable ledger.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- MODAL 1: ISSUE GOLD -->
+<div id="issueGoldModal" class="modal-backdrop">
+    <div class="search-modal" style="padding:28px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="font-size:20px;">Issue Gold to Artisan Bench</h3>
+            <button type="button" onclick="closeModal('issueGoldModal')" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="issue_gold" value="1">
+
+            <div class="form-group">
+                <label class="form-label">Job Piece (Optional or link to Job)</label>
+                <select name="job_id" class="form-select">
+                    <option value="">General Issue / Unlinked</option>
+                    {% for j in jobs %}
+                        <option value="{{ j.job_id }}">{{ j.job_id }} &bull; {{ j.title }} ({{ j.order.customer.name }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Karigar / Worker *</label>
+                <select name="worker_id" class="form-select" required>
+                    {% for w in workers %}
+                        <option value="{{ w.pk }}">{{ w.name }} ({{ w.get_specialization_display }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                <div class="form-group">
+                    <label class="form-label">Gold Purity *</label>
+                    <select name="purity" class="form-select">
+                        {% for code, label in purity_choices %}
+                            <option value="{{ code }}" {% if code == '22K' %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Weight in Grams *</label>
+                    <input type="number" step="0.001" name="weight_grams" class="form-input" placeholder="0.000" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Notes / Source (Granules, bar, wire, rolling)</label>
+                <input type="text" name="notes" class="form-input" placeholder="e.g. 22K 916 Hallmark wire and casting granules">
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+                <button type="button" onclick="closeModal('issueGoldModal')" class="btn-ghost">Cancel</button>
+                <button type="submit" class="btn-primary">Record Gold Issue</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL 2: RETURN GOLD -->
+<div id="returnGoldModal" class="modal-backdrop">
+    <div class="search-modal" style="padding:28px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="font-size:20px;">Record Gold Return / Scrap / Loss</h3>
+            <button type="button" onclick="closeModal('returnGoldModal')" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="return_gold" value="1">
+
+            <div class="form-group">
+                <label class="form-label">Return Type *</label>
+                <select name="transaction_type" class="form-select" required>
+                    {% for code, label in return_types %}
+                        <option value="{{ code }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Related Job (Optional)</label>
+                <select name="job_id" class="form-select">
+                    <option value="">General Return / Sweep</option>
+                    {% for j in jobs %}
+                        <option value="{{ j.job_id }}">{{ j.job_id }} &bull; {{ j.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Karigar Returning Metal *</label>
+                <select name="worker_id" class="form-select" required>
+                    {% for w in workers %}
+                        <option value="{{ w.pk }}">{{ w.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                <div class="form-group">
+                    <label class="form-label">Gold Purity *</label>
+                    <select name="purity" class="form-select">
+                        {% for code, label in purity_choices %}
+                            <option value="{{ code }}" {% if code == '22K' %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Weight Returned (Grams) *</label>
+                    <input type="number" step="0.001" name="weight_grams" class="form-input" placeholder="0.000" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Detailed Notes</label>
+                <input type="text" name="notes" class="form-input" placeholder="e.g. Cut sprues, bench filings, ultrasonic wash sludge">
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+                <button type="button" onclick="closeModal('returnGoldModal')" class="btn-ghost">Cancel</button>
+                <button type="submit" class="btn-primary">Record Return</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openModal(id) {
+    document.getElementById(id).classList.add('active');
+}
+function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+}
+</script>
+{% endblock %}

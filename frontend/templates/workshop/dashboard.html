@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard -- Tulasi Molding Works{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="dashboard-hero" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; flex-wrap:wrap; gap:16px;">
+    <div>
+        <div style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px;">ATELIER OVERVIEW</div>
+        <h1 style="font-size:28px; font-weight:800; color:#f5f5f5; letter-spacing:-0.02em; margin:0;">Workshop Dashboard</h1>
+        <p style="font-size:13px; color:#666; margin-top:4px;">{{ current_market_date|date:"l, d F Y" }} &bull; Pillarigudi St, Chittoor</p>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center;">
+        <a href="{% url 'customer_create' %}" class="flow-button flow-button--gold" style="text-decoration:none;">
+            <svg class="flow-btn-arr flow-btn-arr--left" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+            <span class="flow-btn-text">+ New Customer Intake</span>
+            <span class="flow-btn-circle"></span>
+            <svg class="flow-btn-arr flow-btn-arr--right" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+        </a>
+
+        <details class="dashboard-calc-dock" id="dashboardCalculatorDock">
+            <summary class="dashboard-calc-toggle" aria-label="Open calculator">
+                <span class="dashboard-calc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 7h8M8 12h2m4 0h2M8 16h2m4 0h2"/></svg></span>
+                <span class="dashboard-calc-toggle-copy"><strong>Calculator</strong></span>
+            </summary>
+            <div class="dashboard-calc-popover" id="dashboardCalculatorPanel">
+                        <div class="digital-calc">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <div style="font-size:10px; font-weight:800; color:#555; letter-spacing:0.06em;">CALCULATOR</div>
+                <div style="font-size:10px; font-weight:700; color:#3b82f6;">FAST &amp; SMOOTH</div>
+            </div>
+            <div class="calc-screen">
+                <div class="calc-prev-val" id="calcScreenPrev"></div>
+                <div class="calc-current-val" id="calcScreenCurrent">0</div>
+                <div class="calc-words-val" id="calcScreenWords">Zero</div>
+            </div>
+            <div class="calc-grid">
+                <button type="button" class="calc-btn action-btn" data-action="clear">C</button>
+                <button type="button" class="calc-btn action-btn" data-action="toggle-sign">&plusmn;</button>
+                <button type="button" class="calc-btn action-btn" data-action="percent">%</button>
+                <button type="button" class="calc-btn op-btn" data-action="divide">&divide;</button>
+                <button type="button" class="calc-btn" data-val="7">7</button>
+                <button type="button" class="calc-btn" data-val="8">8</button>
+                <button type="button" class="calc-btn" data-val="9">9</button>
+                <button type="button" class="calc-btn op-btn" data-action="multiply">&times;</button>
+                <button type="button" class="calc-btn" data-val="4">4</button>
+                <button type="button" class="calc-btn" data-val="5">5</button>
+                <button type="button" class="calc-btn" data-val="6">6</button>
+                <button type="button" class="calc-btn op-btn" data-action="subtract">&minus;</button>
+                <button type="button" class="calc-btn" data-val="1">1</button>
+                <button type="button" class="calc-btn" data-val="2">2</button>
+                <button type="button" class="calc-btn" data-val="3">3</button>
+                <button type="button" class="calc-btn op-btn" data-action="add">&plus;</button>
+                <button type="button" class="calc-btn" data-val="0" style="grid-column:span 2;">0</button>
+                <button type="button" class="calc-btn" data-action="decimal">.</button>
+                <button type="button" class="calc-btn equal-btn" data-action="calculate">=</button>
+            </div>
+        </div>
+            </div>
+        </details>
+    </div>
+</div>
+
+
+<!-- KPI METRIC ROW -->
+<div class="dashboard-kpi-grid" style="display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:14px; margin-bottom:24px;">
+
+    <div style="background:#0f0f0f; border:1px solid #1e1e1e; border-radius:16px; padding:20px; position:relative; overflow:hidden; transition:border-color 0.2s; cursor:default;"
+         onmouseenter="this.style.borderColor='#2a2a2a'" onmouseleave="this.style.borderColor='#1e1e1e'">
+        <div style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:12px;">Active Pieces</div>
+        <div style="font-size:36px; font-weight:800; color:#f5f5f5; letter-spacing:-0.03em; line-height:1;">{{ active_jobs_count }}</div>
+        <div style="font-size:12px; color:#666; margin-top:6px;">In active crafting</div>
+        <div style="position:absolute; bottom:16px; right:16px; width:36px; height:36px; border-radius:10px; background:rgba(59,130,246,0.1); display:flex; align-items:center; justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+        </div>
+    </div>
+
+    <div style="background:#0f0f0f; border:1px solid #1e1e1e; border-radius:16px; padding:20px; position:relative; overflow:hidden; transition:border-color 0.2s; cursor:default;"
+         onmouseenter="this.style.borderColor='#2a2a2a'" onmouseleave="this.style.borderColor='#1e1e1e'">
+        <div style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:12px;">Ready for Delivery</div>
+        <div style="font-size:36px; font-weight:800; color:#4ade80; letter-spacing:-0.03em; line-height:1;">{{ ready_for_delivery_count }}</div>
+        <div style="font-size:12px; color:#666; margin-top:6px;">Awaiting customer pickup</div>
+        <div style="position:absolute; bottom:16px; right:16px; width:36px; height:36px; border-radius:10px; background:rgba(74,222,128,0.1); display:flex; align-items:center; justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+    </div>
+
+    <div style="background:#0f0f0f; border:1px solid #1e1e1e; border-radius:16px; padding:20px; position:relative; overflow:hidden; transition:border-color 0.2s; cursor:default;"
+         onmouseenter="this.style.borderColor='#2a2a2a'" onmouseleave="this.style.borderColor='#1e1e1e'">
+        <div style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:12px;">New Today</div>
+        <div style="font-size:36px; font-weight:800; color:#a78bfa; letter-spacing:-0.03em; line-height:1;">{{ new_orders_today }}</div>
+        <div style="font-size:12px; color:#666; margin-top:6px;">Pieces taken in today</div>
+        <div style="position:absolute; bottom:16px; right:16px; width:36px; height:36px; border-radius:10px; background:rgba(167,139,250,0.1); display:flex; align-items:center; justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+    </div>
+
+    <div style="background:#0f0f0f; border:1px solid #1e1e1e; border-radius:16px; padding:20px; position:relative; overflow:hidden; transition:border-color 0.2s; cursor:default;"
+         onmouseenter="this.style.borderColor='#2a2a2a'" onmouseleave="this.style.borderColor='#1e1e1e'">
+        <div style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:12px;">Completed Today</div>
+        <div style="font-size:36px; font-weight:800; color:#fbbf24; letter-spacing:-0.03em; line-height:1;">{{ completed_today_count|default:"0" }}</div>
+        <div style="font-size:12px; color:#666; margin-top:6px;">Finished &amp; delivered</div>
+        <div style="position:absolute; bottom:16px; right:16px; width:36px; height:36px; border-radius:10px; background:rgba(251,191,36,0.1); display:flex; align-items:center; justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+        </div>
+    </div>
+
+    <div style="background:#0f0f0f; border:1px solid #1e1e1e; border-radius:16px; padding:20px; position:relative; overflow:hidden; transition:border-color 0.2s; cursor:default;"
+         onmouseenter="this.style.borderColor='#2a2a2a'" onmouseleave="this.style.borderColor='#1e1e1e'">
+        <div style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:12px;">Total Customers</div>
+        <div style="font-size:36px; font-weight:800; color:#60a5fa; letter-spacing:-0.03em; line-height:1;">{{ total_customers|default:"0" }}</div>
+        <div style="font-size:12px; color:#666; margin-top:6px;">Active customer records</div>
+        <div style="position:absolute; bottom:16px; right:16px; width:36px; height:36px; border-radius:10px; background:rgba(96,165,250,0.1); display:flex; align-items:center; justify-content:center;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-1.5a6.5 6.5 0 0 1 13 0V20zM16 5.5a3.5 3.5 0 0 1 0 6.7M19 14a5.5 5.5 0 0 1 2.5 4.5V20"/></svg>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN TWO-COLUMN LAYOUT -->
+<div style="display:grid; grid-template-columns:minmax(0, 1fr); gap:20px; align-items:start;">
+
+    <!-- LEFT: Active Works Tracker (Expanded Clean SaaS View) -->
+    <div>
+        <div style="background:#0a0a0a; border:1px solid #1e1e1e; border-radius:20px; overflow:hidden;">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px 16px; border-bottom:1px solid #151515;">
+                <div>
+                    <div style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:3px;">LIVE ATELIER TRACKING</div>
+                    <h2 style="font-size:18px; font-weight:700; color:#f5f5f5; margin:0;">Works in Progress</h2>
+                </div>
+                <a href="{% url 'customer_create' %}" class="flow-button flow-button--gold" style="padding:6px 18px; font-size:12px; text-decoration:none;">
+                    <svg class="flow-btn-arr flow-btn-arr--left" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    <span class="flow-btn-text">+ New Intake</span>
+                    <span class="flow-btn-circle"></span>
+                    <svg class="flow-btn-arr flow-btn-arr--right" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </a>
+            </div>
+
+            <div style="padding:16px; display:flex; flex-direction:column; gap:12px;">
+                {% for col in kanban_columns %}
+                    {% for job in col.jobs %}
+                    <div style="background:#111; border:1px solid #1e1e1e; border-radius:16px; padding:18px 20px; transition:border-color 0.15s;"
+                         onmouseenter="this.style.borderColor='#2a2a2a'" onmouseleave="this.style.borderColor='#1e1e1e'">
+                    <div class="job-tracker-heading" style="display:flex; align-items:center; gap:14px; margin-bottom:14px; flex-wrap:wrap;">
+                            {% if job.final_photo %}
+                                <img src="{{ job.final_photo }}" style="width:52px; height:52px; border-radius:12px; object-fit:cover; border:2px solid #22c55e; flex-shrink:0;" alt="Finished {{ job.title }}" title="Final Output Photograph Recorded">
+                            {% elif job.reference_photo %}
+                                <img src="{{ job.reference_photo }}" style="width:52px; height:52px; border-radius:12px; object-fit:cover; border:1px solid #2a2a2a; flex-shrink:0;" alt="{{ job.title }}">
+                            {% else %}
+                                <div style="width:52px; height:52px; border-radius:12px; background:#1a1a1a; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; border:1px solid #2a2a2a; color:#555;">&#128142;</div>
+                            {% endif %}
+                            <div class="job-tracker-info" style="flex:1; min-width:0;">
+                                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                    <h3 style="font-size:15px; font-weight:700; color:#f5f5f5; margin:0;">{{ job.title }}</h3>
+                                    <span class="badge-chip badge-yellow" style="font-size:10px;">{{ job.gold_purity }}</span>
+                                    <code style="font-size:11px; color:#555; background:#1a1a1a; padding:2px 6px; border-radius:5px; border:1px solid #2a2a2a;">{{ job.job_id }}</code>
+                                    {% if job.final_photo %}
+                                        <span class="badge-chip badge-green" style="font-size:10px;">&#10003; Output Photo</span>
+                                    {% endif %}
+                                </div>
+                                <div style="font-size:12px; color:#666; margin-top:3px;">
+                                    <a href="{% url 'customer_detail' job.order.customer.pk %}" style="color:#60a5fa; font-weight:600; text-decoration:none;">{{ job.order.customer.name }}</a>
+                                    &bull; {{ job.order.customer.mobile }} &bull; Est: {{ job.expected_weight }}g
+                                </div>
+                            </div>
+                            <div class="job-tracker-actions" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+                                <a href="{% url 'job_detail' job.job_id %}" style="font-size:12px; color:#aaa; background:#1a1a1a; border:1px solid #2a2a2a; border-radius:8px; padding:6px 12px; text-decoration:none; font-weight:600;">View Details &rarr;</a>
+                                <div class="del-widget" data-slot="delete-button" data-state="closed" data-status="idle" data-item-type="job" data-pk="{{ job.pk }}" data-next="{% url 'dashboard' %}">
+                                    <button type="button" class="del-trigger" aria-label="Delete piece">
+                                        <svg class="del-bin-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path class="del-bin-body" d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><g class="del-bin-lid"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></g></svg>
+                                        <svg class="del-done-svg" viewBox="0 0 24 24" fill="none"><path d="M4 12.5 9.5 18 20 7" stroke="#FF5F2E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    </button>
+                                    <div class="del-panel"><span class="del-panel-notch"></span>
+                                        <button type="button" class="del-circle-btn del-circle-confirm" aria-label="Confirm delete"><svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M4 12.5 9.5 18 20 7" stroke="#FF5F2E" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                                        <button type="button" class="del-circle-btn del-circle-cancel" aria-label="Cancel"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#868593" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 18 18M18 6 6 18"/></svg></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <ul class="atelier-task-list" data-slot="task-list">
+                            <li class="atelier-task-item" data-state="checked">
+                                <svg class="task-check-svg" viewBox="0 0 24 24"><circle class="task-ring-circle" cx="12" cy="12" r="11" fill="none" stroke-width="2" stroke-dasharray="1 4.316"></circle><circle class="task-fill-circle" cx="12" cy="12" r="12"></circle><path class="task-tick-path" d="M7.4 12.4 10.6 15.5 16.6 8.9" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                <span class="task-label-text">Intake from customer</span>
+                                <span class="task-stage-badge badge-green">Received</span>
+                            </li>
+                            <li class="atelier-task-item" data-job-id="{{ job.job_id }}" data-stage-action="give_polisher"
+                                data-state="{% if job.atelier_stage in 'AT_POLISHER,POLISH_DONE,AT_STONE,STONE_DONE,COMPLETED' %}checked{% else %}unchecked{% endif %}">
+                                <svg class="task-check-svg" viewBox="0 0 24 24"><circle class="task-ring-circle" cx="12" cy="12" r="11" fill="none" stroke-width="2" stroke-dasharray="1 4.316"></circle><circle class="task-fill-circle" cx="12" cy="12" r="12"></circle><path class="task-tick-path" d="M7.4 12.4 10.6 15.5 16.6 8.9" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                <span class="task-label-text">Polish Worker</span>
+                                {% if job.polisher_given_date %}<span class="task-stage-badge badge-ash">{{ job.polisher_given_date|date:"d M H:i" }}</span>{% endif %}
+                            </li>
+                            <li class="atelier-task-item" data-job-id="{{ job.job_id }}" data-stage-action="give_stone"
+                                data-state="{% if job.atelier_stage in 'AT_STONE,STONE_DONE,COMPLETED' %}checked{% else %}unchecked{% endif %}">
+                                <svg class="task-check-svg" viewBox="0 0 24 24"><circle class="task-ring-circle" cx="12" cy="12" r="11" fill="none" stroke-width="2" stroke-dasharray="1 4.316"></circle><circle class="task-fill-circle" cx="12" cy="12" r="12"></circle><path class="task-tick-path" d="M7.4 12.4 10.6 15.5 16.6 8.9" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                <span class="task-label-text">Stone Fitting</span>
+                                {% if job.stone_given_date %}<span class="task-stage-badge badge-ash">{{ job.stone_given_date|date:"d M H:i" }}</span>{% endif %}
+                            </li>
+                            <li class="atelier-task-item atelier-final-photo-task" data-job-id="{{ job.job_id }}"
+                                data-state="{% if job.atelier_stage == 'COMPLETED' or job.overall_status == 'READY' %}checked{% else %}unchecked{% endif %}"
+                                style="justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                                <div class="final-photo-task-label" style="display:flex; align-items:center; gap:8px;">
+                                    <svg class="task-check-svg" viewBox="0 0 24 24"><circle class="task-ring-circle" cx="12" cy="12" r="11" fill="none" stroke-width="2" stroke-dasharray="1 4.316"></circle><circle class="task-fill-circle" cx="12" cy="12" r="12"></circle><path class="task-tick-path" d="M7.4 12.4 10.6 15.5 16.6 8.9" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                    <span class="task-label-text">Final output photo &amp; QR Bill</span>
+                                    {% if job.final_photo %}<span class="task-stage-badge badge-green">&#10003; Output Photo Attached</span>{% endif %}
+                                </div>
+                                <form class="dashboard-photo-actions" method="post" action="{% url 'api_stage_action' job.job_id %}" enctype="multipart/form-data" style="display:inline-flex; align-items:center; margin:0;" onclick="event.stopPropagation();">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="complete_job">
+                                    <input type="file" name="final_photo" id="dashPhoto_{{ job.pk }}" accept="image/*" style="display:none;" onchange="this.form.submit()">
+                                    <button type="button" class="image-camera-button dashboard-camera-button" data-camera-target="dashPhoto_{{ job.pk }}" aria-label="Take final output photo">&#128247; Camera</button>
+                                    <label class="dashboard-file-picker" for="dashPhoto_{{ job.pk }}" style="font-size:11px; padding:4px 10px; border-radius:8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:#ddd; cursor:pointer; font-weight:600; transition:all 0.15s;" onmouseenter="this.style.background='rgba(255,255,255,0.12)'" onmouseleave="this.style.background='rgba(255,255,255,0.06)'">
+                                        &#128247; {% if job.final_photo %}Replace Photo{% else %}Upload Output Image{% endif %}
+                                    </label>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                    {% endfor %}
+                {% empty %}
+                <div style="padding:48px 24px; text-align:center;">
+                    <div style="width:56px; height:56px; border-radius:14px; background:#1a1a1a; display:flex; align-items:center; justify-content:center; font-size:22px; margin:0 auto 16px; border:1px solid #2a2a2a;">&#10003;</div>
+                    <h3 style="font-size:17px; color:#f5f5f5; margin-bottom:6px;">No Active Works</h3>
+                    <p style="font-size:13px; color:#666; margin-bottom:18px;">Start by intaking a piece from a customer.</p>
+                    <a href="{% url 'customer_create' %}" style="display:inline-flex; align-items:center; gap:7px; padding:10px 24px; border-radius:100px; font-size:13px; font-weight:700; color:#f0ead8; background:rgba(212,169,58,0.14); border:1.5px solid rgba(212,169,58,0.28); text-decoration:none; transition:all 0.2s;" onmouseenter="this.style.background='rgba(212,169,58,0.24)'" onmouseleave="this.style.background='rgba(212,169,58,0.14)'">+ New Customer &amp; Work Intake</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+{% endblock %}

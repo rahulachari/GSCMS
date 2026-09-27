@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign In — Goldsmith Workshop ERP{% endblock %}
+
+{% block content %}
+<div style="max-width: 440px; margin: 80px auto; text-align: center;">
+    <div style="margin-bottom: var(--spacing-28);">
+        <div style="width: 56px; height: 56px; background: #dfb15b; border-radius: 16px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; color: white;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="12,2 2,9 12,22 22,9" />
+            </svg>
+        </div>
+        <h1 style="font-size: 32px; font-weight: 600; letter-spacing: -0.02em;">Workshop Portal</h1>
+        <p style="font-size: 15px; color: var(--color-graphite); margin-top: 6px;">Sri Swarna Jewellers Workshop ERP</p>
+    </div>
+
+    <div class="vitrine-card" style="text-align: left; padding: 36px;">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label" for="username">Username</label>
+                <input type="text" id="username" name="username" class="form-input" placeholder="e.g. owner or wrk_001" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-input" placeholder="Enter password" required>
+            </div>
+
+            <div style="margin-top: 28px;">
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 12px; font-size: 16px;">Sign In to Workshop</button>
+            </div>
+        </form>
+        
+        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--color-border); font-size: 12px; color: var(--color-slate); line-height: 1.5;">
+            <strong>Demo Credentials:</strong><br>
+            • Owner: <code>owner</code> / <code>admin123</code><br>
+            • Karigar (Suresh): <code>wrk_002</code> / <code>worker123</code>
+        </div>
+    </div>
+</div>
+{% endblock %}

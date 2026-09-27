@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}New Customer &amp; Work Intake — {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 760px; margin: 0 auto; padding-bottom: 40px;">
+    <a href="{% url 'customer_list' %}" style="font-size:14px; color:var(--text-muted); font-weight:600;">&larr; Back to Customers</a>
+    
+    <div style="margin: 16px 0 24px;">
+        <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">INTAKE &amp; CLIENT ONBOARDING</div>
+        <h1 style="font-size: 32px; margin-top:2px;">New Customer &amp; Work Intake</h1>
+        <p style="font-size:15px; color:var(--text-muted); margin-top:4px;">
+            Record customer details, select jewellery item, purity, expected weight, requirements, and reference picture.
+        </p>
+    </div>
+
+    <div class="pearl-card" style="padding: 32px;">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- SECTION 1: CUSTOMER DETAILS -->
+            <div style="margin-bottom: 28px;">
+                <h3 style="font-size: 18px; border-bottom: 1px solid var(--pearl-border); padding-bottom: 10px; margin-bottom: 18px;">
+                    1. Customer Information
+                </h3>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group" style="margin-bottom:16px;">
+                        <label class="form-label" style="font-size:13px; font-weight:700; color:var(--text-dark); display:block; margin-bottom:6px;">
+                            Customer Name *
+                        </label>
+                        <input type="text" name="name" class="form-input" placeholder="e.g. Rajesh Kumar" required autofocus style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14.5px;">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:16px;">
+                        <label class="form-label" style="font-size:13px; font-weight:700; color:var(--text-dark); display:block; margin-bottom:6px;">
+                            Mobile Number *
+                        </label>
+                        <input type="text" name="mobile" class="form-input" placeholder="e.g. +91 98400 12345" required style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14.5px;">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group" style="margin-bottom:16px;">
+                        <label class="form-label" style="font-size:13px; font-weight:700; color:var(--text-dark); display:block; margin-bottom:6px;">
+                            Alternate Phone (Optional)
+                        </label>
+                        <input type="text" name="alternate_mobile" class="form-input" placeholder="e.g. +91 94440 67890" style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14.5px;">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:16px;">
+                        <label class="form-label" style="font-size:13px; font-weight:700; color:var(--text-dark); display:block; margin-bottom:6px;">
+                            Delivery Address / City
+                        </label>
+                        <input type="text" name="address" class="form-input" placeholder="e.g. T. Nagar, Chennai" style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14.5px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: JEWELLERY WORK ITEM INTAKE -->
+            <div style="background:var(--pearl-bg-subtle); border:1px solid var(--pearl-border); border-radius:18px; padding:24px; margin-bottom:28px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h3 style="font-size: 18px; color:var(--text-black);">
+                        2. Jewellery Item &amp; Requirements
+                    </h3>
+                    <span class="badge-chip badge-gold" style="font-size:11px; font-weight:700;">INITIAL WORK PIECE</span>
+                </div>
+
+                <!-- Jewellery Type Dropdown with 'Other' detection -->
+                <div class="customer-item-grid" style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label class="form-label" style="font-size:13px; font-weight:700; color:var(--text-dark); display:block; margin-bottom:6px;">
+                            Jewellery Type *
+                        </label>
+                        <select name="jewellery_type" id="jewelleryTypeSelect" class="form-input" required onchange="toggleOtherJewellery(this.value)" style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14px; background:var(--pearl-card); color:var(--text-black);">
+                            {% for value, label in jewellery_types %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Custom Type Text Field (shown if 'OTHER' selected) -->
+                    <div id="customTypeContainer" style="display:none;">
+                        <label class="form-label" style="font-size:13px; font-weight:700; color:var(--accent-gold-dark); display:block; margin-bottom:6px;">
+                            Specify Custom Item Name *
+                        </label>
+                        <input type="text" name="custom_type_name" id="customTypeInput" class="form-input" placeholder="e.g. Oddiyanam, Kada, Vanki, Mangalsutra" style="width:100%; padding:10px 14px; border:1px solid var(--accent-gold); border-radius:10px; font-size:14px; background:var(--pearl-card); color:var(--text-black);">
+                    </div>
+
+                    <!-- Gold Purity: Fixed to 22K and 24K as requested -->
+                    <div>
+                        <label class="form-label" style="font-size:13px; font-weight:700; color:var(--text-dark); display:block; margin-bottom:6px;">
+                            Gold Purity *
+                        </label>
+                        <select name="gold_purity" class="form-input" required style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14px; background:var(--pearl-card); color:var(--text-black); font-weight:600;">
+                            <option value="22K" selected>22K (916 Hallmark)</option>
+                            <option value="24K">24K (Pure Gold 99.9%)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Weight and Requirements -->
+                <div class="customer-weight-grid" style="display:grid; grid-template-columns: minmax(180px, 1fr) minmax(0, 2fr); gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label class="form-label" style="font-size:13px; font-weight:700; color:var(--text-dark); display:block; margin-bottom:6px;">
+                            Expected Weight (Grams) *
+                        </label>
+                        <input type="number" min="0" step="0.001" name="expected_weight" class="form-input" placeholder="e.g. 16.500" required style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14px; background:var(--pearl-card); color:var(--text-black); font-family:var(--font-mono);">
+                        <small style="display:block; color:var(--text-muted); margin-top:5px;">Enter grams to three decimal places.</small>
+                    </div>
+
+                    <div>
+                        <label class="form-label" style="font-size:13px; font-weight:700; color:var(--text-dark); display:block; margin-bottom:6px;">
+                            Customer Requirements &amp; Instructions
+                        </label>
+                        <input type="text" name="requirements" class="form-input" placeholder="e.g. Antique matte finish, ruby stones in center, tight clasp" style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14px; background:var(--pearl-card); color:var(--text-black);">
+                    </div>
+                </div>
+
+                <!-- Reference Picture Upload -->
+                <div>
+                    <label class="form-label" style="font-size:13px; font-weight:700; color:var(--text-dark); display:block; margin-bottom:6px;">
+                        Reference Picture / Sample Photo
+                    </label>
+                    <div style="border: 2px dashed var(--pearl-border); border-radius:12px; padding:18px; text-align:center; background:var(--pearl-bg-subtle);">
+                        <input type="file" name="reference_photo" id="refPhotoInput" accept="image/*" style="display:none;" onchange="previewRefPhoto(this)">
+                        <label for="refPhotoInput" style="cursor:pointer; display:inline-block;">
+                            <div style="width:40px; height:40px; border-radius:50%; background:var(--pearl-card); display:flex; align-items:center; justify-content:center; margin:0 auto 8px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                    <polyline points="21 15 16 10 5 21"></polyline>
+                                </svg>
+                            </div>
+                            <span style="font-size:13.5px; font-weight:600; color:var(--text-black);" id="refPhotoLabel">
+                                Click to select or snap Reference Picture
+                            </span>
+                            <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">PNG, JPG, or WEBP from camera or gallery</div>
+                        </label>
+                        <div style="margin-top:12px;"><button type="button" class="image-camera-button" data-camera-target="refPhotoInput"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h3l2-3h6l2 3h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="3.5"/></svg>Open camera</button></div>
+                        <div id="photoPreviewContainer" style="display:none; margin-top:12px;">
+                            <img id="photoPreviewImg" src="" style="max-height:120px; border-radius:8px; border:1px solid var(--pearl-border);" alt="Preview">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Row -->
+            <div style="display:flex; justify-content:flex-end; gap:12px; align-items:center;">
+                <a href="{% url 'customer_list' %}" class="btn-ghost" style="padding:10px 20px;">Cancel</a>
+                <button type="submit" class="btn-primary" style="padding:11px 28px; font-size:14.5px;">
+                    Save Customer &amp; Open Tracking &rarr;
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleOtherJewellery(val) {
+    const container = document.getElementById('customTypeContainer');
+    const input = document.getElementById('customTypeInput');
+    if (val === 'OTHER') {
+        container.style.display = 'block';
+        input.required = true;
+        input.focus();
+    } else {
+        container.style.display = 'none';
+        input.required = false;
+    }
+}
+
+function previewRefPhoto(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('photoPreviewImg').src = e.target.result;
+            document.getElementById('photoPreviewContainer').style.display = 'block';
+            document.getElementById('refPhotoLabel').textContent = 'Selected: ' + input.files[0].name;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+{% endblock %}

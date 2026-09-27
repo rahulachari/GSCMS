@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ order.order_number }} — {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:var(--spacing-28);">
+    <a href="{% url 'order_list' %}" style="font-size:14px; color:var(--color-link-blue);">&larr; Back to Orders</a>
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:8px; flex-wrap:wrap; gap:16px;">
+        <div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span class="badge-chip badge-ash" style="font-size:13px;">{{ order.get_order_type_display }}</span>
+                {% if order.priority == 'URGENT' %}<span class="badge-chip badge-red">Urgent</span>{% endif %}
+            </div>
+            <h1 style="font-size:36px; margin-top:4px;">{{ order.order_number }}</h1>
+            <p style="font-size:15px; color:var(--color-graphite);">Booked on {{ order.created_at|date:"d M Y, h:i A" }}</p>
+        </div>
+        <div style="display:flex; gap:12px;">
+            <a href="{% url 'payment_list' %}" class="btn-primary">Record Payment</a>
+        </div>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns: 2fr 1fr; gap:var(--spacing-24);">
+    <!-- Left Column: Split Jobs & Instructions -->
+    <div>
+        <!-- Split Jobs in this Order -->
+        <div class="vitrine-card" style="margin-bottom:var(--spacing-24);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="font-size:19px;">Jewellery Pieces in this Order ({{ jobs.count }})</h3>
+                <span style="font-size:13px; color:var(--color-slate);">Each piece tracked independently</span>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:16px;">
+                {% for job in jobs %}
+                <div style="border:1px solid var(--color-border); border-radius:18px; padding:18px; display:flex; align-items:center; justify-content:space-between; gap:16px; background:#fafafc;">
+                    <div style="display:flex; align-items:center; gap:16px;">
+                        {% if job.reference_photo %}
+                            <img src="{{ job.reference_photo }}" style="width:64px; height:64px; border-radius:14px; object-fit:cover; border:1px solid var(--color-border);" alt="{{ job.title }}">
+                        {% elif job.final_photo %}
+                            <img src="{{ job.final_photo }}" style="width:64px; height:64px; border-radius:14px; object-fit:cover; border:1px solid var(--color-border);" alt="{{ job.title }}">
+                        {% else %}
+                            <div style="width:64px; height:64px; border-radius:14px; background:#e8e8ed; display:flex; align-items:center; justify-content:center; font-size:11px; color:#86868b;">No Img</div>
+                        {% endif %}
+
+                        <div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <strong style="font-size:16px; color:var(--color-apple-ink);">{{ job.job_id }}</strong>
+                                <span class="badge-chip badge-blue">{{ job.get_current_stage_display }}</span>
+                                {% if job.is_delayed %}
+                                    <span class="badge-chip badge-red">Delayed</span>
+                                {% endif %}
+                            </div>
+                            <div style="font-size:14px; font-weight:500; color:var(--color-apple-ink); margin-top:2px;">{{ job.title }}</div>
+                            <div style="font-size:12px; color:var(--color-graphite); margin-top:2px;">
+                                Purity: <strong>{{ job.gold_purity }}</strong> &bull; Est. Wt: <strong>{{ job.expected_weight }}g</strong> &bull; Karigar: <strong>{{ job.current_worker.name|default:"Unassigned" }}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <a href="{% url 'job_card_print' job.job_id %}" target="_blank" class="btn-ash" style="padding:6px 14px; font-size:12px;" title="Printable Job Card with QR Code">
+                            QR Card
+                        </a>
+                        <a href="{% url 'job_detail' job.job_id %}" class="btn-primary" style="padding:6px 16px; font-size:13px;">
+                            Job Hub &rarr;
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Instructions & Workshop Notes -->
+        <div class="vitrine-card">
+            <h3 style="font-size:19px; margin-bottom:16px;">Customer Specifications &amp; Notes</h3>
+            <div style="margin-bottom:16px;">
+                <div class="form-label">Client Instructions</div>
+                <div style="padding:14px; background:#fafafc; border-radius:14px; font-size:14px; color:var(--color-apple-ink);">
+                    {{ order.customer_instructions|default:"No special instructions provided." }}
+                </div>
+            </div>
+            {% if order.internal_notes %}
+            <div>
+                <div class="form-label">Internal Workshop Notes</div>
+                <div style="padding:14px; background:#fafafc; border-radius:14px; font-size:14px; color:var(--color-slate);">
+                    {{ order.internal_notes }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Right Column: Customer Card & Billing -->
+    <div>
+        <!-- Customer Profile Card -->
+        <div class="vitrine-card" style="margin-bottom:var(--spacing-24);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h4 style="font-size:16px;">Customer Details</h4>
+                <a href="{% url 'customer_detail' order.customer.pk %}" style="font-size:12px;">Profile &rarr;</a>
+            </div>
+            <div style="font-size:18px; font-weight:600; color:var(--color-apple-ink);">{{ order.customer.name }}</div>
+            <div style="font-size:14px; color:var(--color-graphite); margin-top:4px;">{{ order.customer.mobile }}</div>
+            {% if order.customer.address %}
+                <div style="font-size:13px; color:var(--color-slate); margin-top:8px;">{{ order.customer.address }}</div>
+            {% endif %}
+            <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--color-border); font-size:12px; color:var(--color-slate);">
+                Total Lifetime Orders: <strong>{{ order.customer.total_orders }}</strong>
+            </div>
+        </div>
+
+        <!-- Financial Summary Card -->
+        <div class="vitrine-card">
+            <h4 style="font-size:16px; margin-bottom:16px;">Payment Accounting</h4>
+            <div style="display:flex; flex-direction:column; gap:10px; font-size:14px;">
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:var(--color-graphite);">Total Estimated:</span>
+                    <strong>₹{{ order.total_estimated_amount|floatformat:2 }}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:var(--color-graphite);">Advance Paid:</span>
+                    <span style="color:var(--status-green); font-weight:600;">₹{{ order.advance_paid|floatformat:2 }}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding-top:10px; border-top:1px solid var(--color-border); font-size:16px;">
+                    <span>Outstanding Due:</span>
+                    <strong style="color:{% if order.balance_amount > 0 %}var(--status-red){% else %}var(--status-green){% endif %};">
+                        ₹{{ order.balance_amount|floatformat:2 }}
+                    </strong>
+                </div>
+            </div>
+
+            <!-- Payments List -->
+            <div style="margin-top:20px;">
+                <div class="form-label">Receipts History</div>
+                {% for p in payments %}
+                <div style="padding:10px; border:1px solid var(--color-border-subtle); border-radius:10px; margin-bottom:6px; font-size:12px; display:flex; justify-content:space-between;">
+                    <div>
+                        <strong>{{ p.receipt_number }}</strong> &bull; {{ p.date|date:"d M" }}<br>
+                        <span style="color:var(--color-slate);">{{ p.get_payment_method_display }}</span>
+                    </div>
+                    <div style="text-align:right;">
+                        <strong style="color:var(--status-green);">₹{{ p.amount|floatformat:2 }}</strong><br>
+                        <a href="{% url 'payment_receipt_print' p.receipt_number %}" target="_blank" style="font-size:11px;">Print Receipt</a>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="font-size:12px; color:var(--color-slate);">No payment receipts recorded yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

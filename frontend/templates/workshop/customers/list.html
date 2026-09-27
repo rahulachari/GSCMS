@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Customers Directory — {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:16px;">
+    <div>
+        <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">CLIENTELE &amp; PATRONS</div>
+        <h1 style="font-size:32px; margin-top:2px;">Customer Profiles</h1>
+    </div>
+    <div style="display:flex; gap:10px;">
+        <a href="{% url 'customer_create' %}" class="btn-primary">
+            + Add New Customer
+        </a>
+    </div>
+</div>
+
+<!-- Search & Fast Filters -->
+<div class="pearl-card" style="padding:14px 18px; margin-bottom:20px;">
+    <form method="get" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search customer name, phone number, customer ID..." class="form-input" style="flex:1; min-width:280px; max-width:440px; padding:9px 14px; font-size:14px; border:1px solid var(--pearl-border); border-radius:10px;">
+        <button type="submit" class="btn-ghost" style="padding:9px 20px; font-size:13.5px;">Search</button>
+        {% if query %}
+            <a href="{% url 'customer_list' %}" class="btn-ghost" style="font-size:13px; color:var(--text-muted);">Clear Filter</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Customers Table with Edit & Soft-Delete for Every Row -->
+<div class="pearl-card" style="padding:0; overflow:hidden;">
+    <table class="pearl-table">
+        <thead>
+            <tr>
+                <th>Customer ID</th>
+                <th>Client Name</th>
+                <th>Mobile Number</th>
+                <th>Address</th>
+                <th>Total Orders</th>
+                <th>Active Orders</th>
+                <th>Outstanding Due</th>
+                <th style="text-align:right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in customers %}
+            <tr>
+                <td><code>{{ c.customer_id }}</code></td>
+                <td>
+                    <strong><a href="{% url 'customer_detail' c.pk %}" style="color:var(--text-black); font-size:14.5px;">{{ c.name }}</a></strong>
+                </td>
+                <td><strong style="font-family:var(--font-mono); font-size:13px;">{{ c.mobile }}</strong></td>
+                <td style="font-size:13px; color:var(--text-muted); max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    {{ c.address|default:"-" }}
+                </td>
+                <td><strong>{{ c.total_orders }}</strong></td>
+                <td>
+                    {% if c.active_orders > 0 %}
+                        <span class="badge-chip badge-blue">{{ c.active_orders }} active</span>
+                    {% else %}
+                        <span class="badge-chip badge-ash">0</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if c.outstanding_balance > 0 %}
+                        <strong style="color:var(--accent-red); font-family:var(--font-mono);">₹{{ c.outstanding_balance|floatformat:2 }}</strong>
+                    {% else %}
+                        <span style="color:var(--accent-green); font-weight:600;">Cleared</span>
+                    {% endif %}
+                </td>
+                <td style="text-align:right;">
+                    <div style="display:inline-flex; align-items:center; gap:8px;">
+                        <!-- Client Docs 3D Folder Link -->
+                        <a href="{% url 'client_docs' %}?q={{ c.customer_id }}" class="btn-ghost" style="padding:4px 8px; font-size:12px;" title="View 3D Document Folder">
+                            &#128193; Folder
+                        </a>
+
+                        <!-- View Profile Button -->
+                        <a href="{% url 'customer_detail' c.pk %}" class="btn-ghost" style="padding:4px 10px; font-size:12px;">
+                            Profile &rarr;
+                        </a>
+
+                        <!-- User's Animated Delete Button (Moves to Recycle Bin) -->
+                        <div class="del-widget" data-slot="delete-button" data-state="closed" data-status="idle" data-item-type="customer" data-pk="{{ c.pk }}" data-next="{% url 'customer_list' %}" title="Move customer to Recycle Bin">
+                            <button type="button" class="del-trigger" aria-label="Delete customer">
+                                <svg class="del-bin-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path class="del-bin-body" d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                                    <g class="del-bin-lid">
+                                        <path d="M3 6h18" />
+                                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </g>
+                                </svg>
+                                <svg class="del-done-svg" viewBox="0 0 24 24" fill="none">
+                                    <path d="M4 12.5 9.5 18 20 7" stroke="#FF5F2E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </button>
+                            <div class="del-panel">
+                                <span class="del-panel-notch"></span>
+                                <button type="button" class="del-circle-btn del-circle-confirm" aria-label="Confirm delete" title="Move to Recycle Bin">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
+                                        <path d="M4 12.5 9.5 18 20 7" stroke="#FF5F2E" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </button>
+                                <button type="button" class="del-circle-btn del-circle-cancel" aria-label="Cancel">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#868593" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M6 6 18 18M18 6 6 18" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" style="text-align:center; padding:48px; color:var(--text-muted);">
+                    No customers found. Click <strong>+ Add New Customer</strong> to register a patron.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

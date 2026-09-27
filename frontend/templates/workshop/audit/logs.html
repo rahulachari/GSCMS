@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Audit Trail &amp; Compliance Logs — {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:var(--spacing-28);">
+    <div class="hero-subtitle">Security &amp; Forensic Logging</div>
+    <h1 style="font-size:32px;">Workshop Audit Log</h1>
+    <p style="font-size:15px; color:var(--color-graphite); margin-top:4px;">Immutable chronological trail of all precious metal movements, orders, stage updates, and payments</p>
+</div>
+
+<div class="vitrine-card" style="padding:0; overflow:hidden;">
+    <table class="vitrine-table">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Artisan / Staff</th>
+                <th>Action</th>
+                <th>Entity Type</th>
+                <th>Target Object</th>
+                <th>Audit Details</th>
+                <th>IP Address</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td style="font-size:12px; color:var(--color-slate); white-space:nowrap;">
+                    {{ log.timestamp|date:"d M Y, h:i:s A" }}
+                </td>
+                <td><strong>{{ log.user.username|default:"System" }}</strong></td>
+                <td><span class="badge-chip badge-ash">{{ log.action }}</span></td>
+                <td><code>{{ log.model_name }}</code></td>
+                <td><strong style="color:var(--color-apple-ink);">{{ log.object_repr }}</strong></td>
+                <td style="font-size:13px; color:var(--color-graphite); max-width:300px;">{{ log.details|default:"-" }}</td>
+                <td style="font-family:monospace; font-size:12px; color:var(--color-slate);">{{ log.ip_address|default:"127.0.0.1" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align:center; padding:40px; color:var(--color-slate);">
+                    No audit logs recorded yet.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

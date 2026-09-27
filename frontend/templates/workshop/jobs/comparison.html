@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reference vs Final — {{ job.job_id }} | {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:var(--spacing-28);">
+    <a href="{% url 'job_detail' job.job_id %}" style="font-size:14px; color:var(--color-link-blue);">&larr; Back to Job Hub</a>
+    
+    <div style="margin-top:8px;">
+        <div class="hero-subtitle">Bespoke Craftsmanship Audit</div>
+        <h1 style="font-size:36px;">Reference vs Final Output</h1>
+        <p style="font-size:15px; color:var(--color-graphite); margin-top:4px;">
+            Job <strong>{{ job.job_id }}</strong> &bull; {{ job.title }} &bull; Client: <strong>{{ job.order.customer.name }}</strong>
+        </p>
+    </div>
+</div>
+
+<!-- Comparison Vitrine -->
+<div class="comparison-container" style="padding:40px; margin-bottom:var(--spacing-32);">
+    <!-- Left: Reference Design -->
+    <div class="comparison-box">
+        <div class="comparison-label" style="font-size:15px; letter-spacing:0.08em; color:var(--color-slate);">
+            &larr; 1. CLIENT REFERENCE SPECIFICATION
+        </div>
+        <div class="comparison-img-wrapper" style="aspect-ratio: 1/1; cursor:zoom-in;">
+            {% if ref_photo %}
+                <img src="{{ ref_photo.image.url }}" alt="Reference Blueprint for {{ job.job_id }}" onclick="openLightbox(this.src, 'Reference Design (V{{ job.design_version }})')">
+            {% else %}
+                <div style="text-align:center; padding:30px; color:var(--color-slate);">
+                    No reference design sketch attached.
+                </div>
+            {% endif %}
+        </div>
+        <div style="margin-top:16px; text-align:center;">
+            <div style="font-size:16px; font-weight:600; color:var(--color-apple-ink);">Initial Blueprint / Sketch</div>
+            <div style="font-size:13px; color:var(--color-graphite); margin-top:4px;">
+                Design Version: <strong>V{{ job.design_version }}</strong> &bull; 
+                {% if job.customer_approved %}
+                    <span style="color:var(--status-green); font-weight:600;">Approved by {{ job.approved_by|default:"Client" }}</span>
+                {% else %}
+                    <span style="color:var(--status-yellow); font-weight:600;">Approval Pending</span>
+                {% endif %}
+            </div>
+            {% if ref_photo.caption %}
+                <div style="font-size:12px; color:var(--color-slate); margin-top:4px; font-style:italic;">
+                    "{{ ref_photo.caption }}"
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Right: Final Output -->
+    <div class="comparison-box">
+        <div class="comparison-label" style="font-size:15px; letter-spacing:0.08em; color:var(--color-electric-blue);">
+            2. MASTER ATELIER FINISHED PIECE &rarr;
+        </div>
+        <div class="comparison-img-wrapper" style="aspect-ratio: 1/1; cursor:zoom-in;">
+            {% if final_photo %}
+                <img src="{{ final_photo.image.url }}" alt="Final Output for {{ job.job_id }}" onclick="openLightbox(this.src, 'Final Atelier Masterpiece (Hallmark 916)')">
+            {% else %}
+                <div style="text-align:center; padding:30px; color:var(--color-slate);">
+                    Piece is currently in production. Final photograph will appear once polished &amp; QC approved.
+                </div>
+            {% endif %}
+        </div>
+        <div style="margin-top:16px; text-align:center;">
+            <div style="font-size:16px; font-weight:600; color:var(--color-apple-ink);">Final Handcrafted Masterpiece</div>
+            <div style="font-size:13px; color:var(--color-graphite); margin-top:4px;">
+                Purity: <strong>{{ job.gold_purity }}</strong> &bull; Final Gross Wt: <strong>{{ job.final_gross_weight|default:"Pending" }}g</strong> &bull; Net Gold: <strong>{{ job.net_gold_weight|default:"Pending" }}g</strong>
+            </div>
+            <div style="font-size:12px; color:var(--color-slate); margin-top:4px;">
+                QC Inspection: <strong style="color:{% if job.quality_check.result == 'PASS' %}var(--status-green){% else %}var(--status-yellow){% endif %};">{% if job.quality_check %}{{ job.quality_check.get_result_display }}{% else %}Pending{% endif %}</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="text-align:center; margin-bottom:var(--spacing-32);">
+    <a href="{% url 'job_detail' job.job_id %}" class="btn-ghost" style="padding:10px 24px;">Return to Job Hub</a>
+</div>
+{% endblock %}

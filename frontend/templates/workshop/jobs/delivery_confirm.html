@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Confirm Delivery — {{ job.job_id }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 640px; margin: 0 auto;">
+    <a href="{% url 'job_detail' job.job_id %}" style="font-size:14px; color:var(--color-link-blue);">&larr; Back to Job Hub</a>
+    
+    <div style="margin: 16px 0 24px;">
+        <h1 style="font-size: 32px;">Handover to Customer</h1>
+        <p style="font-size:15px; color:var(--color-graphite);">Pre-delivery quality verification &amp; handover confirmation</p>
+    </div>
+
+    <div class="vitrine-card">
+        <div style="display:flex; align-items:center; gap:16px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--color-border);">
+            {% if job.final_photo %}
+                <img src="{{ job.final_photo }}" style="width:70px; height:70px; border-radius:14px; object-fit:cover;" alt="{{ job.title }}">
+            {% endif %}
+            <div>
+                <strong style="font-size:16px;">{{ job.title }}</strong>
+                <div style="font-size:13px; color:var(--color-slate);">Job ID: {{ job.job_id }} &bull; Purity: {{ job.gold_purity }}</div>
+                <div style="font-size:13px; color:var(--color-graphite); margin-top:2px;">Final Gross Weight: <strong>{{ job.final_gross_weight }}g</strong></div>
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Pre-delivery Gate Checklist -->
+            <div style="background:#fafafc; border-radius:16px; padding:16px; margin-bottom:20px;">
+                <h4 style="font-size:14px; margin-bottom:12px;">Pre-delivery Gate Checklist</h4>
+                
+                <label style="display:flex; align-items:center; gap:10px; margin-bottom:10px; font-size:14px; cursor:pointer;">
+                    <input type="checkbox" name="chk_qc" checked required>
+                    <span>Quality Control (QC) inspection passed</span>
+                </label>
+
+                <label style="display:flex; align-items:center; gap:10px; margin-bottom:10px; font-size:14px; cursor:pointer;">
+                    <input type="checkbox" name="chk_weight" checked required>
+                    <span>Final gross &amp; net gold weight verified on scales ({{ job.final_gross_weight|default:"Verified" }}g)</span>
+                </label>
+
+                <label style="display:flex; align-items:center; gap:10px; margin-bottom:10px; font-size:14px; cursor:pointer;">
+                    <input type="checkbox" name="chk_payment" checked required>
+                    <span>Customer payment balance cleared or authorized</span>
+                </label>
+
+                <label style="display:flex; align-items:center; gap:10px; font-size:14px; cursor:pointer;">
+                    <input type="checkbox" name="chk_photo" checked required>
+                    <span>Finished item photograph recorded in digital dossier</span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Delivered To (Name of Receiver) *</label>
+                <input type="text" name="delivered_to_name" value="{{ job.order.customer.name }}" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Delivery Notes / Counter Signature Reference</label>
+                <textarea name="notes" class="form-textarea" rows="2" placeholder="e.g. Handed over in velvet gift box with hallmark guarantee certificate"></textarea>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+                <a href="{% url 'job_detail' job.job_id %}" class="btn-ghost">Cancel</a>
+                <button type="submit" class="btn-primary" style="padding:10px 24px; font-size:15px;">
+                    Confirm Delivery &amp; Archive
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

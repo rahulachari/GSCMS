@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Orders Roster — {{ workshop_settings.name }}{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--spacing-28); flex-wrap:wrap; gap:16px;">
+    <div>
+        <div class="hero-subtitle">Client Bookings</div>
+        <h1 style="font-size:32px;">Workshop Orders</h1>
+    </div>
+    <div style="display:flex; gap:12px;">
+        <a href="{% url 'order_create' %}" class="btn-primary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Book New Order
+        </a>
+    </div>
+</div>
+
+<!-- Filters & Search Bar -->
+<div class="vitrine-card" style="padding:16px 20px; margin-bottom:var(--spacing-24);">
+    <form method="get" style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search by Order No, Customer, Phone..." class="form-input" style="max-width:320px; padding:8px 14px; font-size:14px;">
+        <select name="status" class="form-select" style="max-width:180px; padding:8px 12px; font-size:14px;">
+            <option value="">All Statuses</option>
+            <option value="PENDING" {% if status_filter == 'PENDING' %}selected{% endif %}>Pending</option>
+            <option value="IN_PROGRESS" {% if status_filter == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+            <option value="COMPLETED" {% if status_filter == 'COMPLETED' %}selected{% endif %}>Completed</option>
+            <option value="DELIVERED" {% if status_filter == 'DELIVERED' %}selected{% endif %}>Delivered</option>
+        </select>
+        <button type="submit" class="btn-ghost" style="padding:8px 18px; font-size:14px;">Filter</button>
+        {% if query or status_filter %}
+            <a href="{% url 'order_list' %}" class="btn-ash" style="font-size:13px;">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Orders Table -->
+<div class="vitrine-card" style="padding:0; overflow:hidden;">
+    <table class="vitrine-table">
+        <thead>
+            <tr>
+                <th>Order Number</th>
+                <th>Customer</th>
+                <th>Type</th>
+                <th>Priority</th>
+                <th>Jewellery Items</th>
+                <th>Total Est.</th>
+                <th>Advance</th>
+                <th>Balance</th>
+                <th>Delivery Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>
+                    <a href="{% url 'order_detail' order.pk %}" style="font-weight:600; color:var(--color-apple-ink);">
+                        {{ order.order_number }}
+                    </a>
+                </td>
+                <td>
+                    <div><strong>{{ order.customer.name }}</strong></div>
+                    <div style="font-size:12px; color:var(--color-slate);">{{ order.customer.mobile }}</div>
+                </td>
+                <td><span class="badge-chip badge-ash">{{ order.get_order_type_display }}</span></td>
+                <td>
+                    {% if order.priority == 'URGENT' %}
+                        <span class="badge-chip badge-red">Urgent</span>
+                    {% elif order.priority == 'IMPORTANT' %}
+                        <span class="badge-chip badge-yellow">Important</span>
+                    {% else %}
+                        <span class="badge-chip badge-ash">Normal</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <strong>{{ order.jobs.count }} pieces</strong>
+                    <div style="font-size:12px; color:var(--color-slate);">
+                        {% for j in order.jobs.all %}
+                            {{ j.title }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </div>
+                </td>
+                <td><strong>₹{{ order.total_estimated_amount|floatformat:2 }}</strong></td>
+                <td><span style="color:var(--status-green);">₹{{ order.advance_paid|floatformat:2 }}</span></td>
+                <td>
+                    {% if order.balance_amount > 0 %}
+                        <span style="color:var(--status-red); font-weight:600;">₹{{ order.balance_amount|floatformat:2 }}</span>
+                    {% else %}
+                        <span style="color:var(--status-green);">Paid</span>
+                    {% endif %}
+                </td>
+                <td>{{ order.required_delivery_date|date:"d M Y"|default:"-" }}</td>
+                <td>
+                    {% if order.status == 'IN_PROGRESS' %}
+                        <span class="badge-chip badge-blue">In Progress</span>
+                    {% elif order.status == 'COMPLETED' or order.status == 'DELIVERED' %}
+                        <span class="badge-chip badge-green">{{ order.get_status_display }}</span>
+                    {% else %}
+                        <span class="badge-chip badge-yellow">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div style="display:inline-flex; align-items:center; gap:6px;">
+                        <a href="{% url 'order_detail' order.pk %}" class="btn-ghost" style="padding:4px 10px; font-size:12px;">View Hub</a>
+                        <button type="button" onclick="triggerSoftDelete('order', {{ order.pk }}, '{% url 'order_list' %}')" class="btn-delete" title="Move to Recycle Bin">
+                            &#128465; Delete
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="11" style="text-align:center; padding:40px; color:var(--color-slate);">
+                    No orders found matching the criteria.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

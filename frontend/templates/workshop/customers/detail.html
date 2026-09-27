@@ -1,0 +1,413 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ customer.name }} — Customer Hub &amp; Work Tracking | Fine Jewellery Atelier{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 24px;">
+    <a href="{% url 'customer_list' %}" style="font-size:14px; color:var(--text-muted); font-weight:600;">&larr; Back to Customers Directory</a>
+    
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:12px; flex-wrap:wrap; gap:16px;">
+        <div>
+            <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">
+                PATRON DOSSIER &bull; <code>{{ customer.customer_id }}</code>
+            </div>
+            <h1 style="font-size:36px; margin-top:4px;">{{ customer.name }}</h1>
+            <div style="font-size:14.5px; color:var(--text-muted); margin-top:4px;">
+                Phone: <strong style="color:var(--text-black);">{{ customer.mobile }}</strong>
+                {% if customer.address %} &bull; Address: {{ customer.address }}{% endif %}
+                &bull; Registered: {{ customer.created_at|date:"d M Y" }}
+            </div>
+        </div>
+
+        <!-- Header Actions: QR Bill, Add Item, Edit, and Animated Delete Button -->
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <a href="{% url 'customer_qr_bill' customer.pk %}" class="btn-primary" style="padding:9px 18px; font-size:13.5px;" target="_blank">
+                &#128438; Customer QR Bill
+            </a>
+            <button type="button" onclick="openAddItemModal()" class="btn-ghost" style="padding:9px 16px; font-size:13.5px; font-weight:600;">
+                + Add Another Item
+            </button>
+            <a href="{% url 'customer_edit' customer.pk %}" class="btn-ghost" style="padding:9px 16px; font-size:13.5px;">
+                Edit Info
+            </a>
+
+            <!-- User's Animated Delete Button (Soft delete customer to Recycle Bin) -->
+            <div class="del-widget" data-slot="delete-button" data-state="closed" data-status="idle" data-item-type="customer" data-pk="{{ customer.pk }}" data-next="{% url 'customer_list' %}" title="Move customer to Recycle Bin">
+                <button type="button" class="del-trigger" aria-label="Delete customer">
+                    <svg class="del-bin-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path class="del-bin-body" d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                        <g class="del-bin-lid">
+                            <path d="M3 6h18" />
+                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </g>
+                    </svg>
+                    <svg class="del-done-svg" viewBox="0 0 24 24" fill="none">
+                        <path d="M4 12.5 9.5 18 20 7" stroke="#FF5F2E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <div class="del-panel">
+                    <span class="del-panel-notch"></span>
+                    <button type="button" class="del-circle-btn del-circle-confirm" aria-label="Confirm delete" title="Move to Recycle Bin">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
+                            <path d="M4 12.5 9.5 18 20 7" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <button type="button" class="del-circle-btn del-circle-cancel" aria-label="Cancel">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 6 18 18M18 6 6 18" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- WORKSHOP ITEMS & TRACKING SECTION -->
+<div style="margin-bottom: 32px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h2 style="font-size:22px;">Jewellery Pieces &amp; Work Tracking</h2>
+        <button type="button" onclick="openAddItemModal()" class="btn-ghost" style="padding:6px 14px; font-size:13px;">
+            + Intake New Piece
+        </button>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:20px;">
+        {% for o in orders %}
+            {% for j in o.jobs.all %}
+            <div class="pearl-card job-item-card" style="padding: 24px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px; flex-wrap:wrap; gap:14px;">
+                    <!-- Item Basics & Reference Photo -->
+                    <div style="display:flex; gap:16px; align-items:center;">
+                        {% if j.reference_photo %}
+                            <img src="{{ j.reference_photo }}" style="width:72px; height:72px; border-radius:12px; object-fit:cover; border:1px solid var(--pearl-border);" alt="{{ j.title }}">
+                        {% else %}
+                            <div style="width:72px; height:72px; border-radius:12px; background:var(--pearl-bg-subtle); display:grid; place-items:center; font-size:24px; color:var(--text-muted);">
+                                &#128142;
+                            </div>
+                        {% endif %}
+
+                        <div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <h3 style="font-size:19px; color:var(--text-black);">{{ j.title }}</h3>
+                                <span class="badge-chip badge-yellow" style="font-size:11px; font-weight:800;">{{ j.gold_purity }}</span>
+                                <span class="badge-chip badge-ash" style="font-size:11px;"><code>{{ j.job_id }}</code></span>
+                            </div>
+                            <div style="font-size:13.5px; color:var(--text-muted); margin-top:4px;">
+                                Expected Weight: <strong>{{ j.expected_weight }}g</strong>
+                                {% if j.final_gross_weight %}
+                                    &bull; Finished: <strong style="color:var(--accent-green);">{{ j.final_gross_weight }}g</strong>
+                                {% endif %}
+                                &bull; Type: {{ j.get_jewellery_type_display }}
+                            </div>
+                            {% if j.special_instructions %}
+                                <div style="font-size:12.5px; color:var(--text-dark); margin-top:4px; font-style:italic;">
+                                    Requirements: {{ j.special_instructions }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Right Status Badge and Item Delete Button -->
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        {% if j.atelier_stage == 'COMPLETED' or j.overall_status == 'READY' %}
+                            <span class="badge-chip badge-green" style="font-size:13px; padding:6px 14px;">Completed &amp; Delivered</span>
+                        {% elif j.atelier_stage == 'AT_POLISHER' %}
+                            <span class="badge-chip badge-yellow" style="font-size:13px; padding:6px 14px;">With Polish Worker</span>
+                        {% elif j.atelier_stage == 'POLISH_DONE' %}
+                            <span class="badge-chip badge-blue" style="font-size:13px; padding:6px 14px;">Polishing Finished</span>
+                        {% elif j.atelier_stage == 'AT_STONE' %}
+                            <span class="badge-chip badge-yellow" style="font-size:13px; padding:6px 14px;">With Stone Fitter</span>
+                        {% elif j.atelier_stage == 'STONE_DONE' %}
+                            <span class="badge-chip badge-blue" style="font-size:13px; padding:6px 14px;">Stone Fitting Finished</span>
+                        {% else %}
+                            <span class="badge-chip badge-ash" style="font-size:13px; padding:6px 14px;">Received / Intake</span>
+                        {% endif %}
+
+                        <a href="{% url 'job_dossier' j.job_id %}" class="btn-ghost" style="padding:6px 12px; font-size:12px;" target="_blank">
+                            QR Dossier
+                        </a>
+
+                        <!-- Animated Delete Button for this Item -->
+                        <div class="del-widget" data-slot="delete-button" data-state="closed" data-status="idle" data-item-type="job" data-pk="{{ j.pk }}" title="Move piece to Recycle Bin">
+                            <button type="button" class="del-trigger" aria-label="Delete item">
+                                <svg class="del-bin-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path class="del-bin-body" d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                                    <g class="del-bin-lid">
+                                        <path d="M3 6h18" />
+                                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </g>
+                                </svg>
+                                <svg class="del-done-svg" viewBox="0 0 24 24" fill="none">
+                                    <path d="M4 12.5 9.5 18 20 7" stroke="#FF5F2E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </button>
+                            <div class="del-panel">
+                                <span class="del-panel-notch"></span>
+                                <button type="button" class="del-circle-btn del-circle-confirm" aria-label="Confirm delete" title="Move to Recycle Bin">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
+                                        <path d="M4 12.5 9.5 18 20 7" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </button>
+                                <button type="button" class="del-circle-btn del-circle-cancel" aria-label="Cancel">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M6 6 18 18M18 6 6 18" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- USER'S REAL WORKFLOW TRACKER USING TASKLIST COMPONENT -->
+                <div style="background:var(--pearl-bg-subtle); border:1px solid var(--pearl-border-light); border-radius:16px; padding:18px;">
+                    <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:12px;">
+                        WORKFLOW TRACKING &bull; CLICK TO ADVANCE STAGE
+                    </div>
+
+                    <ul class="atelier-task-list" data-slot="task-list">
+                        <!-- Step 1: Customer Intake -->
+                        <li class="atelier-task-item" data-state="checked">
+                            <svg class="task-check-svg" viewBox="0 0 24 24">
+                                <circle class="task-ring-circle" cx="12" cy="12" r="11" fill="none" stroke-width="2" stroke-dasharray="1 4.316"></circle>
+                                <circle class="task-fill-circle" cx="12" cy="12" r="12"></circle>
+                                <path class="task-tick-path" d="M7.4 12.4 10.6 15.5 16.6 8.9" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                            <span class="task-label-text">
+                                Step 1: Item received from customer with requirements &amp; reference picture
+                            </span>
+                            <span class="task-stage-badge badge-green">Received</span>
+                        </li>
+
+                        <!-- Step 2: Give to Polish Worker -->
+                        <li class="atelier-task-item" 
+                            data-job-id="{{ j.job_id }}" 
+                            data-stage-action="give_polisher"
+                            data-state="{% if j.atelier_stage in 'AT_POLISHER,POLISH_DONE,AT_STONE,STONE_DONE,COMPLETED' %}checked{% else %}unchecked{% endif %}">
+                            <svg class="task-check-svg" viewBox="0 0 24 24">
+                                <circle class="task-ring-circle" cx="12" cy="12" r="11" fill="none" stroke-width="2" stroke-dasharray="1 4.316"></circle>
+                                <circle class="task-fill-circle" cx="12" cy="12" r="12"></circle>
+                                <path class="task-tick-path" d="M7.4 12.4 10.6 15.5 16.6 8.9" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                            <span class="task-label-text">
+                                Step 2: Give to Polish Worker
+                            </span>
+                            {% if j.polisher_given_date %}
+                                <span class="task-stage-badge badge-ash">{{ j.polisher_given_date|date:"d M H:i" }}</span>
+                            {% endif %}
+                        </li>
+
+                        <!-- Step 3: Received from Polish Worker -->
+                        <li class="atelier-task-item" 
+                            data-job-id="{{ j.job_id }}" 
+                            data-stage-action="receive_polisher"
+                            data-state="{% if j.atelier_stage in 'POLISH_DONE,AT_STONE,STONE_DONE,COMPLETED' %}checked{% else %}unchecked{% endif %}">
+                            <svg class="task-check-svg" viewBox="0 0 24 24">
+                                <circle class="task-ring-circle" cx="12" cy="12" r="11" fill="none" stroke-width="2" stroke-dasharray="1 4.316"></circle>
+                                <circle class="task-fill-circle" cx="12" cy="12" r="12"></circle>
+                                <path class="task-tick-path" d="M7.4 12.4 10.6 15.5 16.6 8.9" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                            <span class="task-label-text">
+                                Step 3: Received back from Polish Worker
+                            </span>
+                            {% if j.polisher_received_date %}
+                                <span class="task-stage-badge badge-ash">{{ j.polisher_received_date|date:"d M H:i" }}</span>
+                            {% endif %}
+                        </li>
+
+                        <!-- Step 4: Give to Stone Fitter -->
+                        <li class="atelier-task-item" 
+                            data-job-id="{{ j.job_id }}" 
+                            data-stage-action="give_stone"
+                            data-state="{% if j.atelier_stage in 'AT_STONE,STONE_DONE,COMPLETED' %}checked{% else %}unchecked{% endif %}">
+                            <svg class="task-check-svg" viewBox="0 0 24 24">
+                                <circle class="task-ring-circle" cx="12" cy="12" r="11" fill="none" stroke-width="2" stroke-dasharray="1 4.316"></circle>
+                                <circle class="task-fill-circle" cx="12" cy="12" r="12"></circle>
+                                <path class="task-tick-path" d="M7.4 12.4 10.6 15.5 16.6 8.9" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                            <span class="task-label-text">
+                                Step 4: Give to Stone Fitting Person
+                            </span>
+                            {% if j.stone_given_date %}
+                                <span class="task-stage-badge badge-ash">{{ j.stone_given_date|date:"d M H:i" }}</span>
+                            {% endif %}
+                        </li>
+
+                        <!-- Step 5: Received from Stone Fitter -->
+                        <li class="atelier-task-item" 
+                            data-job-id="{{ j.job_id }}" 
+                            data-stage-action="receive_stone"
+                            data-state="{% if j.atelier_stage in 'STONE_DONE,COMPLETED' %}checked{% else %}unchecked{% endif %}">
+                            <svg class="task-check-svg" viewBox="0 0 24 24">
+                                <circle class="task-ring-circle" cx="12" cy="12" r="11" fill="none" stroke-width="2" stroke-dasharray="1 4.316"></circle>
+                                <circle class="task-fill-circle" cx="12" cy="12" r="12"></circle>
+                                <path class="task-tick-path" d="M7.4 12.4 10.6 15.5 16.6 8.9" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                            <span class="task-label-text">
+                                Step 5: Received back from Stone Fitting Person
+                            </span>
+                            {% if j.stone_received_date %}
+                                <span class="task-stage-badge badge-ash">{{ j.stone_received_date|date:"d M H:i" }}</span>
+                            {% endif %}
+                        </li>
+
+                        <!-- Step 6: Final Output Photo & Delivery to Customer -->
+                        <li class="atelier-task-item" 
+                            data-job-id="{{ j.job_id }}" 
+                            data-stage-action="complete_job"
+                            data-state="{% if j.atelier_stage == 'COMPLETED' or j.overall_status == 'READY' %}checked{% else %}unchecked{% endif %}">
+                            <svg class="task-check-svg" viewBox="0 0 24 24">
+                                <circle class="task-ring-circle" cx="12" cy="12" r="11" fill="none" stroke-width="2" stroke-dasharray="1 4.316"></circle>
+                                <circle class="task-fill-circle" cx="12" cy="12" r="12"></circle>
+                                <path class="task-tick-path" d="M7.4 12.4 10.6 15.5 16.6 8.9" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                            <span class="task-label-text">
+                                Step 6: Take Final Output Image &amp; Return to Customer with QR Bill
+                            </span>
+                            {% if j.final_photo %}
+                                <span class="task-stage-badge badge-green">Photo Uploaded</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+
+                    <!-- Final Photo Upload Trigger if in final stages -->
+                    <div style="margin-top:14px; padding-top:12px; border-top:1px dashed var(--pearl-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div style="display:flex; align-items:center; gap:10px; font-size:12.5px;">
+                            {% if j.final_photo %}
+                                <img src="{{ j.final_photo }}" style="width:40px; height:40px; border-radius:8px; object-fit:cover; border:2px solid #22c55e;" alt="Final piece output">
+                                <span style="color:var(--accent-green); font-weight:700;">&#10003; Final piece output photograph recorded.</span>
+                            {% else %}
+                                <span style="color:var(--text-muted);">Snap or attach finished piece picture before returning to client.</span>
+                            {% endif %}
+                        </div>
+
+                        <form class="photo-capture-actions" method="post" action="{% url 'api_stage_action' j.job_id %}" enctype="multipart/form-data" style="display:inline-flex; align-items:center; gap:8px;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="complete_job">
+                            <input type="file" name="final_photo" id="finalPhoto_{{ j.pk }}" accept="image/*" style="display:none;" onchange="this.form.submit()">
+                            <button type="button" class="image-camera-button" data-camera-target="finalPhoto_{{ j.pk }}">&#128247; Capture final photo</button>
+                            <label for="finalPhoto_{{ j.pk }}" class="flow-button flow-button--gold" style="padding:6px 16px; font-size:12px; cursor:pointer;">
+                                <svg class="flow-btn-arr flow-btn-arr--left" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                <span class="flow-btn-text">&#128247; {% if j.final_photo %}Replace Final Photo{% else %}Upload Final Output Photo{% endif %}</span>
+                                <span class="flow-btn-circle"></span>
+                                <svg class="flow-btn-arr flow-btn-arr--right" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                            </label>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% empty %}
+        <div class="pearl-card" style="padding:48px 20px; text-align:center; color:var(--text-muted);">
+            <div style="font-size:36px; margin-bottom:12px;">&#128142;</div>
+            <h3 style="font-size:20px; margin-bottom:8px; color:var(--text-black);">No Pieces Currently Added</h3>
+            <p style="font-size:14px; margin-bottom:18px;">Click below to record a jewellery item received from this patron.</p>
+            <button type="button" onclick="openAddItemModal()" class="btn-primary">+ Intake Piece for {{ customer.name }}</button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- MODAL: ADD ANOTHER ITEM FOR THIS CUSTOMER -->
+<div id="addItemModal" class="modal-backdrop">
+    <div class="modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div>
+                <span class="badge-chip badge-gold" style="font-size:11px; margin-bottom:4px;">INTAKE NEW PIECE</span>
+                <h3 style="font-size:22px;">Add Jewellery Piece for {{ customer.name }}</h3>
+            </div>
+            <button type="button" onclick="closeAddItemModal()" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-muted);">&times;</button>
+        </div>
+
+        <form method="post" action="{% url 'customer_add_item' customer.pk %}" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div style="margin-bottom:16px;">
+                <label style="font-size:13px; font-weight:700; color:var(--text-dark); display:block; margin-bottom:6px;">
+                    Jewellery Type *
+                </label>
+                <select name="jewellery_type" id="modalJewelleryTypeSelect" class="form-input" required onchange="toggleModalOtherJewellery(this.value)" style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14px;">
+                    <option value="RING">Ring</option>
+                    <option value="CHAIN">Chain</option>
+                    <option value="BRACELET">Bracelet</option>
+                    <option value="BANGLE">Bangle</option>
+                    <option value="NECKLACE">Necklace</option>
+                    <option value="EARRINGS">Earrings</option>
+                    <option value="PENDANT">Pendant</option>
+                    <option value="OTHER">&mdash; Other (Custom Text) &mdash;</option>
+                </select>
+            </div>
+
+            <div id="modalCustomTypeContainer" style="display:none; margin-bottom:16px;">
+                <label style="font-size:13px; font-weight:700; color:var(--accent-gold-dark); display:block; margin-bottom:6px;">
+                    Custom Item Name *
+                </label>
+                <input type="text" name="custom_type_name" id="modalCustomTypeInput" class="form-input" placeholder="e.g. Vanki, Kada, Oddiyanam" style="width:100%; padding:10px 14px; border:1px solid var(--accent-gold); border-radius:10px; font-size:14px;">
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+                <div>
+                    <label style="font-size:13px; font-weight:700; color:var(--text-dark); display:block; margin-bottom:6px;">
+                        Gold Purity *
+                    </label>
+                    <select name="gold_purity" class="form-input" required style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14px; font-weight:600;">
+                        <option value="22K" selected>22K (916 Hallmark)</option>
+                        <option value="24K">24K (Pure Gold 99.9%)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="font-size:13px; font-weight:700; color:var(--text-dark); display:block; margin-bottom:6px;">
+                        Expected Weight (g) *
+                    </label>
+                    <input type="number" step="0.001" name="expected_weight" class="form-input" placeholder="e.g. 18.250" required style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14px; font-family:var(--font-mono);">
+                </div>
+            </div>
+
+            <div style="margin-bottom:16px;">
+                <label style="font-size:13px; font-weight:700; color:var(--text-dark); display:block; margin-bottom:6px;">
+                    Customer Requirements
+                </label>
+                <input type="text" name="requirements" class="form-input" placeholder="e.g. Antique finish, rhodium polish on edges" style="width:100%; padding:10px 14px; border:1px solid var(--pearl-border); border-radius:10px; font-size:14px;">
+            </div>
+
+            <div style="margin-bottom:24px;">
+                <label style="font-size:13px; font-weight:700; color:var(--text-dark); display:block; margin-bottom:6px;">
+                    Reference Picture / Sample
+                </label>
+                <div class="photo-upload-control">
+                    <input type="file" name="reference_photo" id="modalReferencePhoto" accept="image/*" class="form-input" style="width:100%; padding:8px 12px; border:1px solid var(--pearl-border); border-radius:10px; font-size:13px;">
+                    <button type="button" class="image-camera-button" data-camera-target="modalReferencePhoto">&#128247; Capture reference</button>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button type="button" onclick="closeAddItemModal()" class="btn-ghost">Cancel</button>
+                <button type="submit" class="btn-primary">Add Piece &amp; Start Tracking</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openAddItemModal() {
+    document.getElementById('addItemModal').classList.add('active');
+}
+function closeAddItemModal() {
+    document.getElementById('addItemModal').classList.remove('active');
+}
+function toggleModalOtherJewellery(val) {
+    const container = document.getElementById('modalCustomTypeContainer');
+    const input = document.getElementById('modalCustomTypeInput');
+    if (val === 'OTHER') {
+        container.style.display = 'block';
+        input.required = true;
+        input.focus();
+    } else {
+        container.style.display = 'none';
+        input.required = false;
+    }
+}
+</script>
+{% endblock %}
