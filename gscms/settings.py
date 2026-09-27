@@ -9,4 +9,4 @@ for p in [str(BACKEND_DIR), str(ROOT_DIR)]:
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from gscms.wsgi import application, app  # noqa
+from backend.gscms.settings import *  # noqa
