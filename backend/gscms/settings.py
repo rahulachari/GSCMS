@@ -81,20 +81,32 @@ WSGI_APPLICATION = 'gscms.wsgi.application'
 
 # Database
 # Production-ready SQLite by default; on Vercel runs against /tmp/db.sqlite3
-if IS_VERCEL:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': Path('/tmp/db.sqlite3'),
-        }
-    }
+tmp_db = Path('/tmp/db.sqlite3')
+if IS_VERCEL and tmp_db.exists():
+    db_target = tmp_db
+elif IS_VERCEL:
+    src_db = BASE_DIR / 'db.sqlite3'
+    if src_db.exists():
+        try:
+            import shutil
+            shutil.copy2(src_db, tmp_db)
+            db_target = tmp_db
+        except Exception:
+            db_target = src_db
+    else:
+        db_target = tmp_db
 else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
+    db_target = BASE_DIR / 'db.sqlite3'
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': db_target,
     }
+}
+
+# Cookie-based sessions so database writes are never required for sessions
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -115,8 +127,11 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     ROOT_DIR / 'frontend' / 'static',
 ]
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATIC_ROOT.mkdir(parents=True, exist_ok=True)
+if IS_VERCEL:
+    STATIC_ROOT = Path('/tmp/staticfiles')
+else:
+    STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 WHITENOISE_USE_FINDERS = True
 
 # Media storage
